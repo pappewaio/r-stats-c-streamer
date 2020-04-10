@@ -7,4 +7,6 @@ mkdir build && cd build
 cmake ..
 make
 
+```
+
 ### Check build folder for executable
