@@ -26,3 +26,6 @@ sudo singularity build ${fname} ubuntu-18.04_qnorm-stdin.def
 echo -e "0.9\n0.5\n0.1e-10" | ./2020-04-09-ubuntu-1804_qnorm-stdin.simg qnorm_stdin
 ```
 
+### Generate 1 million rows test data
+./gentestdata.sh 1000000 > testdata
+
