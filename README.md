@@ -27,5 +27,6 @@ echo -e "0.9\n0.5\n0.1e-10" | ./2020-04-09-ubuntu-1804_qnorm-stdin.simg qnorm_st
 ```
 
 ### Generate 1 million rows test data
+```
 ./gentestdata.sh 1000000 > testdata
 
