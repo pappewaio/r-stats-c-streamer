@@ -10,7 +10,7 @@ cmake ..
 make
 
 #test
-echo -e "0.9\n0.5\n0.1e-10" | ./qnorm_stdin
+echo -e "0.9\n0.5\n0.1e-10" | ./stat_r_in_c qnorm
 
 ```
 
@@ -18,12 +18,12 @@ echo -e "0.9\n0.5\n0.1e-10" | ./qnorm_stdin
 First make sure singularity is installed
 
 ```
-fname="$(date +%F)"-ubuntu-1804_qnorm-stdin.simg
-sudo singularity build ${fname} ubuntu-18.04_qnorm-stdin.def 
+fname="$(date +%F)"-ubuntu-1804_stat_r_in_c.simg
+sudo singularity build ${fname} ubuntu-18.04_stat_r_in_c.def 
 
 
-# check that image is executable and then test it 
-echo -e "0.9\n0.5\n0.1e-10" | ./2020-04-09-ubuntu-1804_qnorm-stdin.simg qnorm_stdin
+# check that image is executable and then test it (change date)
+echo -e "0.9\n0.5\n0.1e-10" | ./20xx-xx-xx-ubuntu-1804_stat_r_in_c.simg stat_r_in_c qnorm
 ```
 
 ### Generate 1 million rows test data
