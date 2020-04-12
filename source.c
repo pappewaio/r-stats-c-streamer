@@ -6,7 +6,11 @@
 #include "Rmath.h"
 
 int operator_qnorm(char *buf) {
-  double prob = strtod(buf, NULL);
+//int operator_qnorm(char arrayvals[]) {
+//int operator_qnorm(char arrayvals[], int arraypositions[]) {
+//  char *buf = arrayvals[arraypositions[0]]
+//  double prob = strtod(arrayvals[arraypositions[0]], NULL);
+    double prob = strtod(buf, NULL);
 
   if (errno != 0) {
     perror("[ERROR] Failed to parse floating point number");
@@ -19,16 +23,41 @@ int operator_qnorm(char *buf) {
     return 1;
   }
 
+  //printf( "%s\t", arrayvals[*arraypositions[1]] );
+  //printf( "%d\t", arrayvals[1] );
+
   printf("%lf\n", qnorm(prob, 0.0, 1.0, 1, 0));
 
   return 0;
 }
+
+//int operator_OR_pval_2_Zscore(char *or, char *pval) {
+//  double or2 = strtof(or, NULL);
+//  double pval = strtof(or, NULL);
+//
+//  if (errno != 0) {
+//    perror("[ERROR] Failed to parse floating point number");
+//    errno = 0;
+//
+//    return 1;
+//  } else if (or2 == 0.0 && strstr(or, "0.0") == NULL) {
+//    fprintf(stderr, "[ERROR] Given line was not a floating point number: %s", buf);
+//
+//    return 1;
+//  }
+//
+//  printf("%lf\n", qnorm(prob, 0.0, 1.0, 1, 0));
+//
+//  return 0;
+//}
+
 
 int main(int argc, char *argv[]) {
   char *buf = NULL;
   size_t buf_len = 0;
   ssize_t bytes_read = 0;
 
+  //int (*operator)(char*);
   int (*operator)(char*);
 
   char operator_name[25] = "function_placeholder";
@@ -64,15 +93,15 @@ int main(int argc, char *argv[]) {
                 break;
             case 'i':
                 // think about replacing atoi to something more modern
-                whichisindexcolumn = atoi(optarg); 
+                whichisindexcolumn = atoi(optarg)-1; 
                 break;  
             case '1':
                 // think about replacing atoi to something more modern
-                argcol1 = atoi(optarg); 
+                argcol1 = atoi(optarg) -1; 
                 break;  
             case '2':
                 // think about replacing atoi to something more modern
-                argcol2 = atoi(optarg); 
+                argcol2 = atoi(optarg) -1; 
                 break;
             case ':':  
                 printf("option needs a value\n");  
@@ -83,12 +112,25 @@ int main(int argc, char *argv[]) {
         }  
     }  
 
+  // Check how many arguments are provided and collect values in an array
+  int argtot = 0;
+  
+  if (argcol1 != 0) { argtot++;}
+  if (argcol2 != 0) { argtot++;}
+
+  int* argcolvals[2] = {0};
+  if (argcol1 != 0) { argcolvals[0] = &argcol1;}
+  if (argcol2 != 0) { argcolvals[1] = &argcol2;}
+
+
+
+  // return value if this function has no errors
   int return_value = 0;
 
   // Skip header rows for calculation according to value in -h argument, 
   // It should only be one row that needs to be skipped, and important
   // to remember is that in the output there will only be one header row.
-  int i;
+  int i = 0;
   for (i = 1; i <= skiplines; ++i) {
     getline(&buf, &buf_len, stdin);
   }
@@ -106,7 +148,32 @@ int main(int argc, char *argv[]) {
 
   // Loop through remaining rows
   while ((bytes_read = getline(&buf, &buf_len, stdin)) != -1) {
-    return_value = operator(buf);
+
+    //split arguments based on tab separator
+    //strtok() will consider any sequence of tabs a single delimiter. This can
+    // be fine for this application as the pipeline can introduce NAs early in
+    // the workflow
+
+    char *array[10];
+    int i=0;
+    array[i] = strtok(buf,"\t");
+    while(array[i]!=NULL) {
+      array[++i] = strtok(NULL,"\t");
+    }
+    //test what is stored in function
+    //int j = 0;
+    //for (j = 0; j <= i; ++j) {
+    //  printf( "%s\t", array[j] );
+    //}
+
+
+    //call operator function
+    //  printf( "%s\t", array[*argcolvals[1]] );
+    //  printf( "%d\t", *argcolvals[1] );
+    //return_value = operator(array);
+    //return_value = operator(array, argcolvals);
+    return_value = operator(array[*argcolvals[0]]);
+    //return_value = operator(buf);
 
     if (return_value != 0) {
       break;
