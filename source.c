@@ -86,15 +86,20 @@ int main(int argc, char *argv[]) {
   int return_value = 0;
 
   // Skip header rows for calculation according to value in -h argument, 
+  // It should only be one row that needs to be skipped, and important
+  // to remember is that in the output there will only be one header row.
   int i;
   for (i = 1; i <= skiplines; ++i) {
     getline(&buf, &buf_len, stdin);
-    
   }
 
   // Make new header based on function
   if (strcmp(operator_name, "qnorm") == 0) {
-    printf("%s\n", "QNORM");
+    if (whichisindexcolumn == 0) {
+      printf("%s\n", "QNORM");
+    } else {
+      printf("%s\t%s\n", "0", "QNORM");
+    }
   } else {
     fprintf(stderr, "[ERROR] Cannot make new header, unknown function: %s", argv[1]);
   }
