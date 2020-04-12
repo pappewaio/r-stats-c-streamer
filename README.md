@@ -10,7 +10,7 @@ cmake ..
 make
 
 #test
-echo -e "0.9\n0.5\n0.1e-10" | ./stat_r_in_c qnorm
+echo -e "0.9\n0.5\n0.1e-10" | ./build/stat_r_in_c qnorm
 
 ```
 

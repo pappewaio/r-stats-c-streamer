@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>  
 #include "Rmath.h"
 
 int operator_qnorm(char *buf) {
@@ -41,8 +42,37 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "[ERROR] Unknown function: %s", argv[1]);
   }
 
+  // Parse arguments
+  int opt; 
+  int skiplines = 0;
+    // put ':' in the starting of the 
+    // string so that program can  
+    //distinguish between '?' and ':'  
+    while((opt = getopt(argc, argv, ":h:")) != -1) 
+    {  
+        switch(opt)  
+        {  
+            case 'h':  
+                // think about replacing stoi to something more modern
+                skiplines = atoi(optarg); 
+                break;  
+            case ':':  
+                printf("option needs a value\n");  
+                break;  
+            case '?':  
+                printf("unknown option: %c\n", optopt); 
+                break;  
+        }  
+    }  
+
   int return_value = 0;
 
+  // Skip header rows according to value in -h argument
+  int i;
+  for (i = 1; i <= skiplines; ++i) {
+    getline(&buf, &buf_len, stdin);
+  }
+  // Loop through remaining rows
   while ((bytes_read = getline(&buf, &buf_len, stdin)) != -1) {
     return_value = operator(buf);
 
