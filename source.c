@@ -67,10 +67,13 @@ int main(int argc, char *argv[]) {
 
   int return_value = 0;
 
-  // Skip header rows according to value in -h argument
+  // Skip header rows for calculation according to value in -h argument, 
+  // but keep in output
   int i;
   for (i = 1; i <= skiplines; ++i) {
     getline(&buf, &buf_len, stdin);
+    printf("%s", buf); 
+    
   }
   // Loop through remaining rows
   while ((bytes_read = getline(&buf, &buf_len, stdin)) != -1) {
