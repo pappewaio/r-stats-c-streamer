@@ -12,7 +12,11 @@ Do this in same folder as CMakeLists.txt & source.c
 echo -e "0.9\n0.5\n0.1e-10" | ./build/stat_r_in_c qnorm
 
 # Test skip first row using -h1
-echo -e "0.9\n0.5\n0.1e-10" | ./build/stat_r_in_c qnorm -h1
+echo -e "PVAL\n0.9\n0.5\n0.1e-10" | ./build/stat_r_in_c qnorm -h1
+
+# Select which columns are index arg1 and arg2 (need tab separation)
+echo -e "0\tpval\tOR\n1\t0.9\t1.2\n2\t0.5\t1.3\n3\t0.1e-10\t1.1"
+echo -e "0\tpval\tOR\n1\t0.9\t1.2\n2\t0.5\t1.3\n3\t0.1e-10\t1.1" | ./build/stat_r_in_c qnorm -h1 -i 1 -1 2 -2 3
 
 ```
 

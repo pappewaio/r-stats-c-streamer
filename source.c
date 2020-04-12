@@ -31,6 +31,8 @@ int main(int argc, char *argv[]) {
 
   int (*operator)(char*);
 
+  char operator_name[25] = "function_placeholder";
+
   if (argc < 2) {
     fprintf(stderr, "[ERROR] No argument given for the function to use\n");
     return 1;
@@ -38,6 +40,7 @@ int main(int argc, char *argv[]) {
 
   if (strcmp(argv[1], "qnorm") == 0) {
     operator = &operator_qnorm;
+    strcpy(operator_name, "qnorm");
   } else {
     fprintf(stderr, "[ERROR] Unknown function: %s", argv[1]);
   }
@@ -83,13 +86,19 @@ int main(int argc, char *argv[]) {
   int return_value = 0;
 
   // Skip header rows for calculation according to value in -h argument, 
-  // but keep in output
   int i;
   for (i = 1; i <= skiplines; ++i) {
     getline(&buf, &buf_len, stdin);
-    printf("%s", buf); 
     
   }
+
+  // Make new header based on function
+  if (strcmp(operator_name, "qnorm") == 0) {
+    printf("%s\n", "QNORM");
+  } else {
+    fprintf(stderr, "[ERROR] Cannot make new header, unknown function: %s", argv[1]);
+  }
+
   // Loop through remaining rows
   while ((bytes_read = getline(&buf, &buf_len, stdin)) != -1) {
     return_value = operator(buf);
