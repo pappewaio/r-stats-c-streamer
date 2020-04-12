@@ -45,17 +45,32 @@ int main(int argc, char *argv[]) {
   // Parse arguments
   int opt; 
   int skiplines = 0;
+  int whichisindexcolumn = 0;
+  int argcol1 = 0;
+  int argcol2 = 0;
     // put ':' in the starting of the 
     // string so that program can  
     //distinguish between '?' and ':'  
-    while((opt = getopt(argc, argv, ":h:")) != -1) 
+    while((opt = getopt(argc, argv, ":h:i:1:2:")) != -1) 
     {  
         switch(opt)  
         {  
-            case 'h':  
+            case 'h':
                 // think about replacing stoi to something more modern
-                skiplines = atoi(optarg); 
+                skiplines = atoi(optarg);
+                break;
+            case 'i':
+                // think about replacing atoi to something more modern
+                whichisindexcolumn = atoi(optarg); 
                 break;  
+            case '1':
+                // think about replacing atoi to something more modern
+                argcol1 = atoi(optarg); 
+                break;  
+            case '2':
+                // think about replacing atoi to something more modern
+                argcol2 = atoi(optarg); 
+                break;
             case ':':  
                 printf("option needs a value\n");  
                 break;  
