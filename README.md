@@ -1,4 +1,4 @@
-### Based on this repo
+### The utilization of the rmath library is based on this repo
 https://github.com/statslabs/rmath
 
 ### Build project 
