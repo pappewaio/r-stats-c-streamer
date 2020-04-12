@@ -5,11 +5,10 @@ https://github.com/statslabs/rmath
 Do this in same folder as CMakeLists.txt & source.c
 
 ```
-mkdir build && cd build
-cmake ..
-make
+# Build project (it will remove old build folders)
+./build.sh
 
-# Test
+# Test program
 echo -e "0.9\n0.5\n0.1e-10" | ./build/stat_r_in_c qnorm
 
 # Test skip first row using -h1
