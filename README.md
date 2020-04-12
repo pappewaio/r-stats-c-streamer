@@ -9,8 +9,11 @@ mkdir build && cd build
 cmake ..
 make
 
-#test
+# Test
 echo -e "0.9\n0.5\n0.1e-10" | ./build/stat_r_in_c qnorm
+
+# Test skip first row using -h1
+echo -e "0.9\n0.5\n0.1e-10" | ./build/stat_r_in_c qnorm -h1
 
 ```
 
@@ -18,11 +21,12 @@ echo -e "0.9\n0.5\n0.1e-10" | ./build/stat_r_in_c qnorm
 First make sure singularity is installed
 
 ```
+# Make singularity image based on defintion file
 fname="$(date +%F)"-ubuntu-1804_stat_r_in_c.simg
 sudo singularity build ${fname} ubuntu-18.04_stat_r_in_c.def 
 
 
-# check that image is executable and then test it (change date)
+# Check that image is executable and then test it (change date)
 echo -e "0.9\n0.5\n0.1e-10" | ./20xx-xx-xx-ubuntu-1804_stat_r_in_c.simg stat_r_in_c qnorm
 ```
 
