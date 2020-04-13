@@ -10,6 +10,11 @@
   echo -e "0\tpval\tOR\n1\t0.9\t1.2\n2\t0.5\t1.3\n3\t0.1e-10\t1.1" | ./test
 */
 
+// This forum post has interesting ideas on how to do this split and storage
+/*
+https://stackoverflow.com/questions/40222582/segfault-resulting-from-strdup-and-strtok
+*/
+
 int main(int argc, char *argv[]) {
   char *buf = NULL;
   size_t buf_len = 0;
