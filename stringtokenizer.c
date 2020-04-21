@@ -26,6 +26,13 @@ int main(int argc, char *argv[]) {
   // Get first line to set correct dimensions
   getline(&buf, &buf_len, stdin);
 
+  // remove newline from buf
+  int len;
+  len = strlen(buf);
+  if( buf[len-1] == '\n' ) {
+   buf[len-1] = 0;
+  }
+
   // strtok uses the original buf when iterating forward by replacing the present value with NULL
   // Therefore we have to make a hard copy if we want to loop through the first line twice
   char *buf2 = malloc(buf_len * sizeof(char));
@@ -49,8 +56,10 @@ int main(int argc, char *argv[]) {
   int i = 0;
   int token_len = 0;
   token = strtok(buf2, "\t");
+  // sizeof(char*) allocates memory for pointers for char
+  // because pointers require a different amount of memory
+  // than a normal char
   char **arr = (char**) malloc(nrcols * sizeof(char*));
-  //for ( i = 0; i < nrcols; i++ )
   while( token != NULL ) {
      token_len = strlen(token);
      arr[i] = (char*) malloc(token_len * sizeof(char) + 1);
@@ -58,53 +67,42 @@ int main(int argc, char *argv[]) {
      token = strtok(NULL, "\t");
   }
 
- // To check if something is inside
- // for ( i = 0; i < nrcols; i++ )
- // {
- //   printf( "inside %s\n", arr[i] );
- // }
+  // Do what you need to do to get col headers right
+  printf( "%s\t", arr[0]);
+  printf( "%s\t", arr[1]);
+  printf( "%s\t%s\n", arr[2] , "funkar");
 
-  // walk through other tokens
-  //int i = 0;
-  //while( token != NULL ) {
-  //   printf( " [%s]\n", token );
-  //   token = strtok(NULL, "\t");
-  //   tokens[i++] = strdup(token);
+  // free buf2
+  if (buf2) free(buf2);
 
-  //   //strcpy(tokens[i++], token);
-  //}
-  
   // Loop through rows
-//  while ((bytes_read = getline(&buf, &buf_len, stdin)) != -1) {
-//
-//    // remove newline
-//    int len;
-//    len = strlen(buf);
-//    if( buf[len-1] == '\n' ) {
-//     buf[len-1] = 0;
-//    }
-//
-//    printf( "%s\t%s\n", buf , "funkar");
-//  }
-    //create array (here old code not working, which we need to replace)
+  while ((bytes_read = getline(&buf, &buf_len, stdin)) != -1) {
 
- //   char *array[10] = {NULL};
- //   int i=0;
- //   array[i] = strtok(buf,"\t");
- //   while(array[i]!=NULL) {
- //     array[++i] = strtok(NULL,"\t");
- //   }
+    // remove newline
+    int len;
+    len = strlen(buf);
+    if( buf[len-1] == '\n' ) {
+     buf[len-1] = 0;
+    }
 
+    i = 0;
+    token = strtok(buf, "\t");
+    while( token != NULL ) {
+       token_len = strlen(token);
+       free(arr[i]);
+       arr[i] = (char*) malloc(token_len * sizeof(char) + 1);
+       strcpy(arr[i++], token);
+       token = strtok(NULL, "\t");
+    }
 
-//  if (errno != 0) {
-//    perror("[ERROR] Failed to read line from stdin");
-//    return_value = 1;
-//  }
-//
+    printf( "%s\t", arr[0]);
+    printf( "%s\t", arr[1]);
+    printf( "%s\t%s\n", arr[2] , "funkar");
+
+  }
 
   // free buf
   if (buf) free(buf);
-  if (buf2) free(buf);
 
   // free 2d array
   for ( i = 0; i < nrcols; i++ )

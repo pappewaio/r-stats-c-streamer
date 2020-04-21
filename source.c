@@ -1,3 +1,9 @@
+//This script split arguments based on tab separator
+//strtok() will consider any sequence of tabs a single delimiter. This can
+// be fine for this application as the pipeline can introduce NAs early in
+// the workflow
+
+
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -5,37 +11,22 @@
 #include <unistd.h>  
 #include "Rmath.h"
 
-//int operator_qnorm(char *buf) {
-//int operator_qnorm(char arrayvals[]) {
-int operator_qnorm(char *arrayvals, int arraypositions[]) {
-//  double prob = strtod(&arrayvals[arraypositions[1]], NULL);
+int operator_qnorm(char **arrayvals, int arraypositions[]) {
+  //take out element 1 which should be the pvalue
+  double prob = strtod(arrayvals[arraypositions[0]], NULL);
 
-//  char *buf = arrayvals[arraypositions[0]]
-//    double prob = strtod(buf, NULL);
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse floating point number");
+    errno = 0;
 
-//  if (errno != 0) {
-//    perror("[ERROR] Failed to parse floating point number");
-//    errno = 0;
-//
-//    return 1;
-//  } else if (prob == 0.0 && strstr(buf, "0.0") == NULL) {
-//    fprintf(stderr, "[ERROR] Given line was not a floating point number: %s", buf);
-//
-//    return 1;
-//  }
+    return 1;
+  } else if (prob == 0.0) {
+    fprintf(stderr, "[ERROR] Given line was not a floating point number: %s", arrayvals[arraypositions[0]]);
 
-  printf("%d\t", arraypositions[0]);
-  printf("%d\t", arraypositions[1]);
-  printf("%s\t", &arrayvals[0]);
-  printf("%s\t", &arrayvals[1]);
-  printf("%s\t", &arrayvals[2]);
-  printf("%s\t", &arrayvals[3]);
-  printf("%s\t", &arrayvals[4]);
-  printf("%s\t", &arrayvals[5]);
-  printf("%s\t", &arrayvals[6]);
-  printf("%s\n", &arrayvals[7]);
+    return 1;
+  }
 
-//  printf("%lf\n", qnorm(prob, 0.0, 1.0, 1, 0));
+  printf("%lf\n", qnorm(prob, 0.0, 1.0, 1, 0));
 
   return 0;
 }
@@ -67,7 +58,7 @@ int main(int argc, char *argv[]) {
   ssize_t bytes_read = 0;
 
   //int (*operator)(char*);
-  int (*operator)(char*, int*);
+  int (*operator)(char**, int*);
 
   char operator_name[25] = "function_placeholder";
 
@@ -154,44 +145,75 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "[ERROR] Cannot make new header, unknown function: %s", argv[1]);
   }
 
+  // Start processing first row
+  // Get first line to set correct dimensions
+  getline(&buf, &buf_len, stdin);
+
+  // remove newline from buf
+  int len;
+  len = strlen(buf);
+  if( buf[len-1] == '\n' ) {
+   buf[len-1] = 0;
+  }
+
+  // strtok uses the original buf when iterating forward by replacing the present value with NULL
+  // Therefore we have to make a hard copy if we want to loop through the first line twice
+  char *buf2 = malloc(buf_len * sizeof(char));
+  strcpy(buf2, buf);
+
+  char *token;
+  // Calc number of columns specified by \t
+  int nrcols = 0;
+  // get the first token
+  token = strtok(buf, "\t");
+  // walk through other tokens
+  while( token != NULL ) {
+     nrcols++;
+     token = strtok(NULL, "\t");
+  }
+  //printf( "Got %d\n columns", nrcols );
+
+  // redo and store each token split by \t in array
+  i = 0;
+  int token_len = 0;
+  token = strtok(buf2, "\t");
+  // sizeof(char*) allocates memory for pointers for char
+  // because pointers require a different amount of memory
+  // than a normal char
+  char **arr = (char**) malloc(nrcols * sizeof(char*));
+  while( token != NULL ) {
+     token_len = strlen(token);
+     arr[i] = (char*) malloc(token_len * sizeof(char) + 1);
+     strcpy(arr[i++], token);
+     token = strtok(NULL, "\t");
+  }
+
+  return_value = operator(arr, argcolvals);
+
+  // free buf2
+  if (buf2) free(buf2);
+
   // Loop through remaining rows
   while ((bytes_read = getline(&buf, &buf_len, stdin)) != -1) {
-
-    //split arguments based on tab separator
-    //strtok() will consider any sequence of tabs a single delimiter. This can
-    // be fine for this application as the pipeline can introduce NAs early in
-    // the workflow
 
     // remove newline
     int len;
     len = strlen(buf);
-    if( buf[len-1] == '\n' )
-    buf[len-1] = 0;
-
-    char *array[10] = {NULL};
-    int i=0;
-    array[i] = strtok(buf,"\t");
-    while(array[i]!=NULL) {
-      array[++i] = strtok(NULL,"\t");
+    if( buf[len-1] == '\n' ) {
+     buf[len-1] = 0;
     }
-    //test what is stored in function
-    //int j = 0;
-    //for (j = 0; j <= i; ++j) {
-    //  printf( "%s\t", array[j] );
-    //}
 
-
-    //call operator function
-      printf( "%d\t", argcolvals[0] );
-      printf( "%d\t", argcolvals[1] );
-      printf( "%s\t", array[0] );
-      printf( "%s\t", array[1] );
-      printf( "%s\t", array[2] );
-    //  printf( "%s\t", &array[argcolvals[0]] );
-    //return_value = operator(array);
-    return_value = operator(*array, argcolvals);
-    //return_value = operator(array[argcolvals[0]]);
-    //return_value = operator(buf);
+    i = 0;
+    token = strtok(buf, "\t");
+    while( token != NULL ) {
+       token_len = strlen(token);
+       free(arr[i]);
+       arr[i] = (char*) malloc(token_len * sizeof(char) + 1);
+       strcpy(arr[i++], token);
+       token = strtok(NULL, "\t");
+    }
+ 
+    return_value = operator(arr, argcolvals);
 
     if (return_value != 0) {
       break;
@@ -203,7 +225,16 @@ int main(int argc, char *argv[]) {
     return_value = 1;
   }
 
+  // free buf
   if (buf) free(buf);
+
+  // free 2d array pointer elements
+  for ( i = 0; i < nrcols; i++ )
+  {
+    free(arr[i]);
+  }
+  // free array
+  free(arr);
 
   return return_value;
 }
