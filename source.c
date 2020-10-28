@@ -2,13 +2,13 @@
 //strtok() will consider any sequence of tabs a single delimiter. This can
 // be fine for this application as the pipeline can introduce NAs early in
 // the workflow
-
-
+//#include <unistd.h>  
+//
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>  
+#include <getopt.h>
 #include "Rmath.h"
 
 int operator_qnorm(char **arrayvals, int arraypositions[]) {
@@ -78,43 +78,111 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "[ERROR] Unknown function: %s", argv[1]);
   }
 
-  // Parse arguments
-  int opt; 
-  int skiplines = 0;
-  int whichisindexcolumn = 0;
-  int argcol1 = 0;
-  int argcol2 = 0;
-    // put ':' in the starting of the 
-    // string so that program can  
-    //distinguish between '?' and ':'  
-    while((opt = getopt(argc, argv, ":h:i:1:2:")) != -1) 
-    {  
-        switch(opt)  
-        {  
-            case 'h':
-                // think about replacing stoi to something more modern
-                skiplines = atoi(optarg);
-                break;
-            case 'i':
-                // think about replacing atoi to something more modern
-                whichisindexcolumn = atoi(optarg)-1; 
-                break;  
-            case '1':
-                // think about replacing atoi to something more modern
-                argcol1 = atoi(optarg) -1; 
-                break;  
-            case '2':
-                // think about replacing atoi to something more modern
-                argcol2 = atoi(optarg) -1; 
-                break;
-            case ':':  
-                printf("option needs a value\n");  
-                break;  
-            case '?':  
-                printf("unknown option: %c\n", optopt); 
-                break;  
-        }  
-    }  
+//  // Parse arguments
+int c;
+int skiplines = 0;
+int whichisindexcolumn = 0;
+int argcol1 = 0;
+int argcol2 = 0;
+/* Flag set by ‘--verbose’. */
+static int verbose_flag;
+
+while (1)
+  {
+    int this_option_optind = optind ? optind : 1;
+    int option_index = 0;
+    static struct option long_options[] =
+      {
+        {"skiplines",  required_argument, 0, 's'},
+        {"index",  required_argument, 0, 'i'},
+        {"pvalue",  required_argument, 0, 'p'},
+        {"oddsratio",    required_argument, 0, 'o'},
+        {0, 0, 0, 0}
+      };
+
+    c = getopt_long (argc, argv, "s:i:p:o:0",
+                     long_options, &option_index);
+
+    /* Detect the end of the options. */
+    if (c == -1)
+      break;
+
+    switch (c)
+      {
+      case 0:
+        /* If this option set a flag, do nothing else now. */
+        if (long_options[option_index].flag != 0)
+          break;
+        printf ("option %s", long_options[option_index].name);
+        if (optarg)
+          printf (" with arg %s", optarg);
+        printf ("\n");
+        break;
+
+      case 's':
+        skiplines = atoi(optarg);
+        break;
+
+      case 'i':
+        whichisindexcolumn = atoi(optarg)-1; 
+        break;
+
+      case 'p':
+        argcol1 = atoi(optarg) -1; 
+        break;
+
+      case 'o':
+        argcol2 = atoi(optarg) -1; 
+        break;
+
+      case '?':
+        /* getopt_long already printed an error message. */
+        break;
+
+      default:
+        abort ();
+      }
+  }
+
+
+
+//  // Parse arguments (old)
+//  int opt; 
+//  int skiplines = 0;
+//  int whichisindexcolumn = 0;
+//  int argcol1 = 0;
+//  int argcol2 = 0;
+//    // put ':' in the starting of the 
+//    // string so that program can  
+//    //distinguish between '?' and ':'  
+//    while((opt = getopt(argc, argv, ":h:i:1:2:")) != -1) 
+//    {  
+//        switch(opt)  
+//        {  
+//            case 'h':
+//                // think about replacing stoi to something more modern
+//                skiplines = atoi(optarg);
+//                break;
+//            case 'i':
+//                // think about replacing atoi to something more modern
+//                whichisindexcolumn = atoi(optarg)-1; 
+//                break;  
+//            case '1':
+//                // think about replacing atoi to something more modern
+//                argcol1 = atoi(optarg) -1; 
+//                break;  
+//            case '2':
+//                // think about replacing atoi to something more modern
+//                argcol2 = atoi(optarg) -1; 
+//                break;
+//            case ':':  
+//                printf("option needs a value\n");  
+//                break;  
+//            case '?':  
+//                printf("unknown option: %c\n", optopt); 
+//                break;  
+//        }  
+//    }  
 
   // Check how many arguments are provided and collect values in an array
   int argtot = 0;
