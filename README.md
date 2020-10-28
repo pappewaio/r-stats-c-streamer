@@ -1,5 +1,6 @@
-### The utilization of the rmath library is based on this repo
-https://github.com/statslabs/rmath
+### The utilization of cmake and the rmath library
+- (on Ubuntu): sudo apt install cmake
+- https://github.com/statslabs/rmath
 
 ### Build project 
 Do this in same folder as CMakeLists.txt & source.c
