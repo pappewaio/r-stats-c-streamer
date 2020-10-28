@@ -145,45 +145,6 @@ while (1)
   }
 
 
-
-//  // Parse arguments (old)
-//  int opt; 
-//  int skiplines = 0;
-//  int whichisindexcolumn = 0;
-//  int argcol1 = 0;
-//  int argcol2 = 0;
-//    // put ':' in the starting of the 
-//    // string so that program can  
-//    //distinguish between '?' and ':'  
-//    while((opt = getopt(argc, argv, ":h:i:1:2:")) != -1) 
-//    {  
-//        switch(opt)  
-//        {  
-//            case 'h':
-//                // think about replacing stoi to something more modern
-//                skiplines = atoi(optarg);
-//                break;
-//            case 'i':
-//                // think about replacing atoi to something more modern
-//                whichisindexcolumn = atoi(optarg)-1; 
-//                break;  
-//            case '1':
-//                // think about replacing atoi to something more modern
-//                argcol1 = atoi(optarg) -1; 
-//                break;  
-//            case '2':
-//                // think about replacing atoi to something more modern
-//                argcol2 = atoi(optarg) -1; 
-//                break;
-//            case ':':  
-//                printf("option needs a value\n");  
-//                break;  
-//            case '?':  
-//                printf("unknown option: %c\n", optopt); 
-//                break;  
-//        }  
-//    }  
-
   // Check how many arguments are provided and collect values in an array
   int argtot = 0;
   
