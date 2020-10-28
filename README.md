@@ -19,8 +19,10 @@ echo -e "PVAL\n0.9\n0.5\n0.1e-10" | ./build/stat_r_in_c qnorm -h1
 echo -e "0\tpval\tOR\n1\t0.9\t1.2\n2\t0.5\t1.3\n3\t0.1e-10\t1.1"
 echo -e "0\tpval\tOR\n1\t0.9\t1.2\n2\t0.5\t1.3\n3\t0.1e-10\t1.1" | ./build/stat_r_in_c qnorm -h1 -i 1 -1 2 -2 3
 
-# calculate zscore from pvalue and odds-ratio
+# calculate zscore from pvalue and odds-ratio (line two shows that it will ignore columns not specified as arguments)
 echo -e "0\tpval\tOR\n1\t0.9\t1.2\n2\t0.5\t1.3\n3\t0.1e-10\t1.1" | ./build/stat_r_in_c pval_OR_2_Zscore -h 1 -i 1 -1 2 -2 3
+echo -e "0\tpval\tOR\tAF\n1\t0.9\t1.2\t0.4\n2\t0.5\t1.3\t0.6\n3\t0.1e-10\t1.1\t0.1" | ./build/stat_r_in_c pval_OR_2_Zscore -h 1 -i 1 -1 2 -2 3
+
 
 ```
 
