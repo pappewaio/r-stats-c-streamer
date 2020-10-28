@@ -31,25 +31,26 @@ int operator_qnorm(char **arrayvals, int arraypositions[]) {
   return 0;
 }
 
-//int operator_OR_pval_2_Zscore(char *or, char *pval) {
-//  double or2 = strtof(or, NULL);
-//  double pval = strtof(or, NULL);
-//
-//  if (errno != 0) {
-//    perror("[ERROR] Failed to parse floating point number");
-//    errno = 0;
-//
-//    return 1;
-//  } else if (or2 == 0.0 && strstr(or, "0.0") == NULL) {
-//    fprintf(stderr, "[ERROR] Given line was not a floating point number: %s", buf);
-//
-//    return 1;
-//  }
-//
-//  printf("%lf\n", qnorm(prob, 0.0, 1.0, 1, 0));
-//
-//  return 0;
-//}
+int operator_pval_OR_2_Zscore(char **arrayvals, int arraypositions[]) {
+  double or = strtod(arrayvals[arraypositions[1]], NULL);
+  double prob = strtod(arrayvals[arraypositions[0]], NULL);
+
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse floating point number");
+    errno = 0;
+
+    return 1;
+  }
+
+  //sign funciton to get -1,0,1
+  int sign = (log(or) > 0) - (log(or) < 0);
+  //fabs is the floating number version of abs
+  //log, natural logarithm
+  //log10, logarithm with base10
+  printf("%lf\n", sign*fabs(qnorm(prob, 0.0, 1.0, 1, 0)));
+
+  return 0;
+}
 
 
 int main(int argc, char *argv[]) {
@@ -70,6 +71,9 @@ int main(int argc, char *argv[]) {
   if (strcmp(argv[1], "qnorm") == 0) {
     operator = &operator_qnorm;
     strcpy(operator_name, "qnorm");
+  } else if (strcmp(argv[1], "pval_OR_2_Zscore") == 0) {
+    operator = &operator_pval_OR_2_Zscore;
+    strcpy(operator_name, "pval_OR_2_Zscore");
   } else {
     fprintf(stderr, "[ERROR] Unknown function: %s", argv[1]);
   }
@@ -140,6 +144,12 @@ int main(int argc, char *argv[]) {
       printf("%s\n", "QNORM");
     } else {
       printf("%s\t%s\n", "0", "QNORM");
+    }
+  } else if (strcmp(operator_name, "pval_OR_2_Zscore") == 0) {
+    if (whichisindexcolumn == 0) {
+      printf("%s\n", "ZSCORE");
+    } else {
+      printf("%s\t%s\n", "0", "ZSCORE");
     }
   } else {
     fprintf(stderr, "[ERROR] Cannot make new header, unknown function: %s", argv[1]);
@@ -229,7 +239,7 @@ int main(int argc, char *argv[]) {
   if (buf) free(buf);
 
   // free 2d array pointer elements
-  for ( i = 0; i < nrcols; i++ )
+  for ( i = 1; i < nrcols; i++ )
   {
     free(arr[i]);
   }
