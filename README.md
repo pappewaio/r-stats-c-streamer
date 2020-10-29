@@ -13,10 +13,10 @@ Do this in same folder as CMakeLists.txt & source.c
 echo -e "0\tpval\tOR\tAF\n1\t0.9\t1.2\t0.4\n2\t0.5\t1.3\t0.6\n3\t0.1e-10\t1.1\t0.1" > rinc_testdata
 
 # Test program
-cat rinc_testdata | ./build/stat_r_in_c qnorm
+cat rinc_testdata | tail -n+2 | ./build/stat_r_in_c qnorm -p 2 -o 3
 
 # Test skip first row using -h1 (-h2 or -h3 to skip 2 or 3 lines)
-cat rinc_testdata | ./build/stat_r_in_c qnorm -s1
+cat rinc_testdata | ./build/stat_r_in_c qnorm -s1 -p 2 -o 3
 
 # Select which columns are index arg1 and arg2 (need tab separation)
 cat rinc_testdata | ./build/stat_r_in_c qnorm -s1 -i 1 -p 2 -o 3
@@ -26,6 +26,7 @@ cat rinc_testdata | ./build/stat_r_in_c pval_OR_2_Zscore --skiplines 1 --index 1
 
 # Same as above but without index (which is accomplished by not specifying --index)
 cat rinc_testdata | ./build/stat_r_in_c qnorm --skiplines 1 --pvalue 2 --oddsratio 3
+
 
 ```
 

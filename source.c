@@ -151,7 +151,7 @@ while (1)
   if (pvalue != 0) { argtot++;}
   if (oddsratio != 0) { argtot++;}
 
-  // init argcolvals
+  // init argcolvals (pvalue always first element, oddsratio second, etc)
   int argcolvals[2] = {0};
   if (pvalue != 0) { argcolvals[0] = pvalue;}
   if (oddsratio != 0) { argcolvals[1] = oddsratio;}
