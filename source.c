@@ -68,6 +68,7 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
+  // Declare the different functions we can use as operators
   if (strcmp(argv[1], "qnorm") == 0) {
     operator = &operator_qnorm;
     strcpy(operator_name, "qnorm");
@@ -81,9 +82,9 @@ int main(int argc, char *argv[]) {
 //  // Parse arguments
 int c;
 int skiplines = 0;
-int whichisindexcolumn = 0;
-int argcol1 = 0;
-int argcol2 = 0;
+int indexcolumn = 0;
+int pvalue = 0;
+int oddsratio = 0;
 /* Flag set by ‘--verbose’. */
 static int verbose_flag;
 
@@ -124,15 +125,15 @@ while (1)
         break;
 
       case 'i':
-        whichisindexcolumn = atoi(optarg)-1; 
+        indexcolumn = atoi(optarg); 
         break;
 
       case 'p':
-        argcol1 = atoi(optarg) -1; 
+        pvalue = atoi(optarg) -1; 
         break;
 
       case 'o':
-        argcol2 = atoi(optarg) -1; 
+        oddsratio = atoi(optarg) -1; 
         break;
 
       case '?':
@@ -147,13 +148,13 @@ while (1)
 
   // Check how many arguments are provided and collect values in an array
   int argtot = 0;
-  
-  if (argcol1 != 0) { argtot++;}
-  if (argcol2 != 0) { argtot++;}
+  if (pvalue != 0) { argtot++;}
+  if (oddsratio != 0) { argtot++;}
 
+  // init argcolvals
   int argcolvals[2] = {0};
-  if (argcol1 != 0) { argcolvals[0] = argcol1;}
-  if (argcol2 != 0) { argcolvals[1] = argcol2;}
+  if (pvalue != 0) { argcolvals[0] = pvalue;}
+  if (oddsratio != 0) { argcolvals[1] = oddsratio;}
 
 
   // return value if this function has no errors
@@ -169,13 +170,13 @@ while (1)
 
   // Make new header based on function
   if (strcmp(operator_name, "qnorm") == 0) {
-    if (whichisindexcolumn == 0) {
+    if (indexcolumn == 0) {
       printf("%s\n", "QNORM");
     } else {
       printf("%s\t%s\n", "0", "QNORM");
     }
   } else if (strcmp(operator_name, "pval_OR_2_Zscore") == 0) {
-    if (whichisindexcolumn == 0) {
+    if (indexcolumn == 0) {
       printf("%s\n", "ZSCORE");
     } else {
       printf("%s\t%s\n", "0", "ZSCORE");
@@ -227,6 +228,14 @@ while (1)
      token = strtok(NULL, "\t");
   }
 
+  // use index value if available
+  unsigned long int inxval = 0;
+  if (indexcolumn != 0) {
+    inxval = strtol(arr[indexcolumn-1], NULL, 10);
+    printf("%ld\t", inxval );
+  }
+  
+  // use user specified operator for first time (a single time)
   return_value = operator(arr, argcolvals);
 
   // free buf2
@@ -252,6 +261,13 @@ while (1)
        token = strtok(NULL, "\t");
     }
  
+    // Check if index is assigned, if so, then use it
+    if (indexcolumn != 0) {
+      inxval = strtol(arr[indexcolumn-1], NULL, 10);
+      printf("%ld\t", inxval );
+    }
+    
+    // use user specified operator for the second time(loop over remaining rows)
     return_value = operator(arr, argcolvals);
 
     if (return_value != 0) {
