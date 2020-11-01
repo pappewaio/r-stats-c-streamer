@@ -11,6 +11,12 @@
 #include <getopt.h>
 #include "Rmath.h"
 
+/*ARITHMETICS good to know
+- fabs, the floating number version of abs
+- log, natural logarithm
+- log10, logarithm with base10
+*/
+
 int operator_qnorm(char **arrayvals, int arraypositions[]) {
   //take out element 1 which should be the pvalue
   double prob = strtod(arrayvals[arraypositions[0]], NULL);
@@ -31,7 +37,7 @@ int operator_qnorm(char **arrayvals, int arraypositions[]) {
   return 0;
 }
 
-int operator_pval_OR_2_Zscore(char **arrayvals, int arraypositions[]) {
+int operator_pval_oddsratio_2_zscore(char **arrayvals, int arraypositions[]) {
   double or = strtod(arrayvals[arraypositions[1]], NULL);
   double prob = strtod(arrayvals[arraypositions[0]], NULL);
 
@@ -44,14 +50,29 @@ int operator_pval_OR_2_Zscore(char **arrayvals, int arraypositions[]) {
 
   //sign funciton to get -1,0,1
   int sign = (log(or) > 0) - (log(or) < 0);
-  //fabs is the floating number version of abs
-  //log, natural logarithm
-  //log10, logarithm with base10
   printf("%lf\n", sign*fabs(qnorm(prob, 0.0, 1.0, 1, 0)));
 
   return 0;
 }
 
+int operator_pval_N_beta_2_zscore(char **arrayvals, int arraypositions[]) {
+  double Nindividuals = strtod(arrayvals[arraypositions[4]], NULL);
+  double prob = strtod(arrayvals[arraypositions[0]], NULL);
+  double beta = strtod(arrayvals[arraypositions[2]], NULL);
+
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse floating point number");
+    errno = 0;
+
+    return 1;
+  }
+
+  //sign funciton to get -1,0,1
+  int sign = (log(beta) > 0) - (log(beta) < 0);
+  printf("%lf\n", sign*fabs( qt( prob/2, Nindividuals-2, 1, 0)));
+
+  return 0;
+}
 
 int main(int argc, char *argv[]) {
   char *buf = NULL;
@@ -61,7 +82,7 @@ int main(int argc, char *argv[]) {
   //int (*operator)(char*);
   int (*operator)(char**, int*);
 
-  char operator_name[25] = "function_placeholder";
+  char operator_name[35] = "function_placeholder";
 
   if (argc < 2) {
     fprintf(stderr, "[ERROR] No argument given for the function to use\n");
@@ -72,23 +93,27 @@ int main(int argc, char *argv[]) {
   if (strcmp(argv[1], "qnorm") == 0) {
     operator = &operator_qnorm;
     strcpy(operator_name, "qnorm");
-  } else if (strcmp(argv[1], "pval_OR_2_Zscore") == 0) {
-    operator = &operator_pval_OR_2_Zscore;
-    strcpy(operator_name, "pval_OR_2_Zscore");
+  } else if (strcmp(argv[1], "pval_oddsratio_2_zscore") == 0) {
+    operator = &operator_pval_oddsratio_2_zscore;
+    strcpy(operator_name, "pval_oddsratio_2_zscore");
+  } else if (strcmp(argv[1], "pval_N_beta_2_zscore") == 0) {
+    operator = &operator_pval_oddsratio_2_zscore;
+    strcpy(operator_name, "pval_N_beta_2_zscore");
   } else {
     fprintf(stderr, "[ERROR] Unknown function: %s", argv[1]);
   }
 
-//  // Parse arguments
-int c;
-int skiplines = 0;
-int indexcolumn = 0;
-int pvalue = 0;
-int oddsratio = 0;
-/* Flag set by ‘--verbose’. */
-static int verbose_flag;
-
-while (1)
+  // Parse arguments
+  int c;
+  int skiplines = 0;
+  int indexcolumn = 0;
+  int pvalue = 0;
+  int oddsratio = 0;
+  int beta = 0;
+  int standarderror = 0;
+  int Nindividuals = 0;
+  
+  while (1)
   {
     int this_option_optind = optind ? optind : 1;
     int option_index = 0;
@@ -98,6 +123,9 @@ while (1)
         {"index",  required_argument, 0, 'i'},
         {"pvalue",  required_argument, 0, 'p'},
         {"oddsratio",    required_argument, 0, 'o'},
+        {"beta",    required_argument, 0, 'b'},
+        {"standarderror",    required_argument, 0, 'e'},
+        {"Nindividuals",    required_argument, 0, 'n'},
         {0, 0, 0, 0}
       };
 
@@ -136,6 +164,18 @@ while (1)
         oddsratio = atoi(optarg) -1; 
         break;
 
+      case 'b':
+        beta = atoi(optarg) -1; 
+        break;
+
+      case 'e':
+        standarderror = atoi(optarg) -1; 
+        break;
+
+      case 'n':
+        Nindividuals = atoi(optarg) -1; 
+        break;
+
       case '?':
         /* getopt_long already printed an error message. */
         break;
@@ -150,11 +190,17 @@ while (1)
   int argtot = 0;
   if (pvalue != 0) { argtot++;}
   if (oddsratio != 0) { argtot++;}
+  if (beta != 0) { argtot++;}
+  if (standarderror != 0) { argtot++;}
+  if (Nindividuals != 0) { argtot++;}
 
   // init argcolvals (pvalue always first element, oddsratio second, etc)
-  int argcolvals[2] = {0};
+  int argcolvals[5] = {0};
   if (pvalue != 0) { argcolvals[0] = pvalue;}
   if (oddsratio != 0) { argcolvals[1] = oddsratio;}
+  if (beta != 0) { argcolvals[2] = oddsratio;}
+  if (standarderror != 0) { argcolvals[3] = oddsratio;}
+  if (Nindividuals != 0) { argcolvals[4] = Nindividuals;}
 
 
   // return value if this function has no errors
@@ -175,7 +221,13 @@ while (1)
     } else {
       printf("%s\t%s\n", "0", "QNORM");
     }
-  } else if (strcmp(operator_name, "pval_OR_2_Zscore") == 0) {
+  } else if (strcmp(operator_name, "pval_oddsratio_2_zscore") == 0) {
+    if (indexcolumn == 0) {
+      printf("%s\n", "ZSCORE");
+    } else {
+      printf("%s\t%s\n", "0", "ZSCORE");
+    }
+  } else if (strcmp(operator_name, "pval_N_beta_2_zscore") == 0) {
     if (indexcolumn == 0) {
       printf("%s\n", "ZSCORE");
     } else {
