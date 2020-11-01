@@ -49,6 +49,26 @@ int operator_qnorm(char **arrayvals, int arraypositions[]) {
 Compute per-SNP test statistics
 ******************************/
 
+// z-score from beta and stderror (linear regression)
+/* 
+  Use the Beta and standard error to convert Beta/SE -> t
+*/
+int operator_beta_se_2_zscore(char **arrayvals, int arraypositions[]) {
+  double beta = strtod(arrayvals[arraypositions[2]], NULL);
+  double stderror = strtod(arrayvals[arraypositions[3]], NULL);
+
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse floating point number");
+    errno = 0;
+
+    return 1;
+  }
+
+  printf("%lf\n", beta/stderror);
+
+  return 0;
+}
+
 // z-score from pvalue and oddsratio (logistic regression only)
 /* 
   Need to fill in details here
@@ -140,26 +160,19 @@ int generate_header(char *operator_name, int indexcolumn) {
     } else {
       printf("%s\t%s\n", "0", "QNORM");
     }
-  } else if (strcmp(operator_name, "pval_oddsratio_2_zscore") == 0) {
-    if (indexcolumn == 0) {
-      printf("%s\n", "ZSCORE");
-    } else {
-      printf("%s\t%s\n", "0", "ZSCORE");
-    }
-  } else if (strcmp(operator_name, "pval_beta_2_zscore") == 0) {
-    if (indexcolumn == 0) {
-      printf("%s\n", "ZSCORE");
-    } else {
-      printf("%s\t%s\n", "0", "ZSCORE");
-    }
-  } else if (strcmp(operator_name, "pval_beta_N_2_zscore") == 0) {
+  } else if (
+      strcmp(operator_name, "beta_se_2_zscore") == 0 ||
+      strcmp(operator_name, "pval_oddsratio_2_zscore") == 0 ||
+      strcmp(operator_name, "pval_beta_2_zscore") == 0 ||
+      strcmp(operator_name, "pval_beta_N_2_zscore") == 0 
+    ) {
     if (indexcolumn == 0) {
       printf("%s\n", "ZSCORE");
     } else {
       printf("%s\t%s\n", "0", "ZSCORE");
     }
   } else {
-    fprintf(stderr, "[ERROR] Cannot make new header, unknown function: %s", operator_name);
+    fprintf(stderr, "[ERROR] Cannot make new header, unknown function: %s\n", operator_name);
   }
 
   return 0;
@@ -199,6 +212,9 @@ int main(int argc, char *argv[]) {
   } else if (strcmp(argv[1], "pval_beta_N_2_zscore") == 0) {
     operator = &operator_pval_beta_N_2_zscore;
     strcpy(operator_name, "pval_beta_N_2_zscore");
+  } else if (strcmp(argv[1], "beta_se_2_zscore") == 0) {
+    operator = &operator_beta_se_2_zscore;
+    strcpy(operator_name, "beta_se_2_zscore");
   } else {
     fprintf(stderr, "[ERROR] Unknown function: %s", argv[1]);
   }
