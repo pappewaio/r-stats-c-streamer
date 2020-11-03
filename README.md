@@ -9,7 +9,7 @@ Do this in same folder as CMakeLists.txt & source.c
 # Build project (it will remove old build folders)
 ./build.sh
 
-# create test data
+# create test data using echo command.
 echo -e "0\tpval\tOR\tAF\tbeta\tSE\tN\tzscore
 1\t0.9\t1.2\t0.4\t1.3\t0.2\t40000\t-1.0
 2\t0.5\t1.3\t0.6\t3.3\t0.15\t45000\t2.3
