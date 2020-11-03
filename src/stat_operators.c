@@ -1,7 +1,7 @@
 #include "stat_operators.h"
 
 /**********************************************
-Functions section, should be moved to own file
+STATISTICS functions section
 ***********************************************/
 /*ARITHMETICS good to know
 - fabs, the floating number version of abs
@@ -10,7 +10,50 @@ Functions section, should be moved to own file
 */
 
 /******************************
-Compute per-SNP Rmath R functions
+Generate header function
+ Always generate a header, but depending on function and if inclusion of index
+ it can look a bit different.
+******************************/
+int generate_header(char *operator_name, int indexcolumn) {
+
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse character input");
+    errno = 0;
+
+    return 1;
+  }
+
+  // Add index column if specified
+    if (indexcolumn != 0) {
+      printf("%s\t", "0");
+    }
+
+  // Make new header based on function name
+  if (strcmp(operator_name, "qnorm") == 0) {
+      printf("%s\n", "QNORM");
+  } else if (
+      strcmp(operator_name, "beta_se_2_zscore") == 0 ||
+      strcmp(operator_name, "pval_oddsratio_2_zscore") == 0 ||
+      strcmp(operator_name, "pval_beta_2_zscore") == 0 ||
+      strcmp(operator_name, "pval_beta_N_2_zscore") == 0 
+    ) {
+      printf("%s\n", "ZSCORE");
+  } else if (
+      strcmp(operator_name, "zscore_N_2_pvalue") == 0 ||
+      strcmp(operator_name, "zscore_2_pvalue") == 0 
+    ) {
+      printf("%s\n", "PVALUE");
+  } else {
+    fprintf(stderr, "[ERROR] Cannot make new header, unknown function: %s\n", operator_name);
+  }
+
+  return 0;
+}
+
+
+
+/******************************
+Compute per-SNP default Rmath R functions
 ******************************/
 
 //Compute qnorm directly from the Rmath library
@@ -131,38 +174,48 @@ int operator_pval_beta_N_2_zscore(char **arrayvals, int arraypositions[]) {
 }
 
 /******************************
-Generate header function
+Compute per-SNP P-values
 ******************************/
-int generate_header(char *operator_name, int indexcolumn) {
+
+// pvalue from Z and N (linear regression)
+/* 
+  Use the test statistics and the sample size to reference the t-distribution
+  Does not account for degrees of freedom lost to covariates in variance estimation
+*/
+int operator_zscore_N_2_pvalue(char **arrayvals, int arraypositions[]) {
+  double Nindividuals = strtod(arrayvals[arraypositions[4]], NULL);
+  double zscore = strtod(arrayvals[arraypositions[5]], NULL);
 
   if (errno != 0) {
-    perror("[ERROR] Failed to parse character input");
+    perror("[ERROR] Failed to parse floating point number");
     errno = 0;
 
     return 1;
   }
 
-  // Make new header based on function name
-  if (strcmp(operator_name, "qnorm") == 0) {
-    if (indexcolumn == 0) {
-      printf("%s\n", "QNORM");
-    } else {
-      printf("%s\t%s\n", "0", "QNORM");
-    }
-  } else if (
-      strcmp(operator_name, "beta_se_2_zscore") == 0 ||
-      strcmp(operator_name, "pval_oddsratio_2_zscore") == 0 ||
-      strcmp(operator_name, "pval_beta_2_zscore") == 0 ||
-      strcmp(operator_name, "pval_beta_N_2_zscore") == 0 
-    ) {
-    if (indexcolumn == 0) {
-      printf("%s\n", "ZSCORE");
-    } else {
-      printf("%s\t%s\n", "0", "ZSCORE");
-    }
-  } else {
-    fprintf(stderr, "[ERROR] Cannot make new header, unknown function: %s\n", operator_name);
+  printf("%lf\n", 2*pt(-fabs(zscore), Nindividuals-2, 1, 0));
+
+  return 0;
+}
+
+
+// pvalue from Z (linear regression)
+/* 
+  Use the test statistics and the z-distribution
+  Ignores that SE uses sample variance
+  bigger errors that might result from floating point storage? seem to peak around 0.1?
+*/
+int operator_zscore_2_pvalue(char **arrayvals, int arraypositions[]) {
+  double zscore = strtod(arrayvals[arraypositions[5]], NULL);
+
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse floating point number");
+    errno = 0;
+
+    return 1;
   }
+
+  printf("%lf\n", 2*pnorm( -abs( zscore ), 0, 1, 1, 0 ));
 
   return 0;
 }

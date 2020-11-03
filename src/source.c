@@ -48,6 +48,12 @@ int main(int argc, char *argv[]) {
   } else if (strcmp(argv[1], "beta_se_2_zscore") == 0) {
     operator = &operator_beta_se_2_zscore;
     strcpy(operator_name, "beta_se_2_zscore");
+  } else if (strcmp(argv[1], "zscore_N_2_pvalue") == 0) {
+    operator = &operator_zscore_N_2_pvalue;
+    strcpy(operator_name, "zscore_N_2_pvalue");
+  } else if (strcmp(argv[1], "zscore_2_pvalue") == 0) {
+    operator = &operator_zscore_2_pvalue;
+    strcpy(operator_name, "zscore_2_pvalue");
   } else {
     fprintf(stderr, "[ERROR] Unknown function: %s", argv[1]);
   }
@@ -61,6 +67,7 @@ int main(int argc, char *argv[]) {
   int beta = 0;
   int standarderror = 0;
   int Nindividuals = 0;
+  int zscore = 0;
   
   while (1)
   {
@@ -75,10 +82,11 @@ int main(int argc, char *argv[]) {
         {"beta",    required_argument, 0, 'b'},
         {"standarderror",    required_argument, 0, 'e'},
         {"Nindividuals",    required_argument, 0, 'n'},
+        {"zscore",    required_argument, 0, 'z'},
         {0, 0, 0, 0}
       };
 
-    c = getopt_long (argc, argv, "s:i:p:o:0",
+    c = getopt_long (argc, argv, "s:i:p:o:b:e:n:z:0",
                      long_options, &option_index);
 
     /* Detect the end of the options. */
@@ -125,6 +133,10 @@ int main(int argc, char *argv[]) {
         Nindividuals = atoi(optarg) -1; 
         break;
 
+      case 'z':
+        zscore = atoi(optarg) -1; 
+        break;
+
       case '?':
         /* getopt_long already printed an error message. */
         break;
@@ -142,6 +154,7 @@ int main(int argc, char *argv[]) {
   if (beta != 0) { argtot++;}
   if (standarderror != 0) { argtot++;}
   if (Nindividuals != 0) { argtot++;}
+  if (zscore != 0) { argtot++;}
 
   // init argcolvals (pvalue always first element, oddsratio second, etc)
   int argcolvals[5] = {0};
@@ -150,7 +163,7 @@ int main(int argc, char *argv[]) {
   if (beta != 0) { argcolvals[2] = oddsratio;}
   if (standarderror != 0) { argcolvals[3] = oddsratio;}
   if (Nindividuals != 0) { argcolvals[4] = Nindividuals;}
-
+  if (zscore != 0) { argcolvals[5] = zscore;}
 
   // return value if this function has no errors
   int return_value = 0;
