@@ -43,6 +43,11 @@ int generate_header(char *operator_name, int indexcolumn) {
       strcmp(operator_name, "zscore_2_pvalue") == 0 
     ) {
       printf("%s\n", "PVALUE");
+  } else if (
+      strcmp(operator_name, "zscore_se_2_beta") == 0 ||
+      strcmp(operator_name, "zscore_N_af_2_beta") == 0 
+    ) {
+      printf("%s\n", "BETA");
   } else {
     fprintf(stderr, "[ERROR] Cannot make new header, unknown function: %s\n", operator_name);
   }
@@ -216,6 +221,52 @@ int operator_zscore_2_pvalue(char **arrayvals, int arraypositions[]) {
   }
 
   printf("%lf\n", 2*pnorm( -abs( zscore ), 0, 1, 1, 0 ));
+
+  return 0;
+}
+
+
+// beta from zscore and se (linear regression)
+/* 
+   Use the test statistics and the estimated SE to infer effect size
+*/
+int operator_zscore_se_2_beta(char **arrayvals, int arraypositions[]) {
+  double stderror = strtod(arrayvals[arraypositions[3]], NULL);
+  double zscore = strtod(arrayvals[arraypositions[5]], NULL);
+
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse floating point number");
+    errno = 0;
+
+    return 1;
+  }
+
+  printf("%lf\n", zscore*stderror);
+
+  return 0;
+}
+
+// beta from zscore, N and AF (linear regression)
+/* 
+   Use the test statistic, sample size, and allele frequency to infer effect sizes
+   Note: does not recover the original effects sizes, but rather, a standardized effect size
+		B_hat <- Beta / sd( pheno )
+   Citation: Supplement of https://www.nature.com/articles/ng.3538
+   Note: Ignores covariate effects and adjustment for degrees of freedom from estimation
+*/
+int operator_zscore_N_af_2_beta(char **arrayvals, int arraypositions[]) {
+  double zscore = strtod(arrayvals[arraypositions[5]], NULL);
+  double Nindividuals = strtod(arrayvals[arraypositions[4]], NULL);
+  double af = strtod(arrayvals[arraypositions[6]], NULL);
+
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse floating point number");
+    errno = 0;
+
+    return 1;
+  }
+
+  printf("%lf\n", zscore/sqrt(2*af*(1-af)*(Nindividuals+zscore*zscore)) );
 
   return 0;
 }

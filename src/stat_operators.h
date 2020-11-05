@@ -22,5 +22,16 @@ int generate_header(char *operator_name, int indexcolumn);
 int operator_zscore_N_2_pvalue(char **arrayvals, int arraypositions[]);
 int operator_zscore_2_pvalue(char **arrayvals, int arraypositions[]);
 
+//Beta (not ready)
+int operator_zscore_se_2_beta(char **arrayvals, int arraypositions[]);
+int operator_zscore_N_af_2_beta(char **arrayvals, int arraypositions[]);
+
+//SE (not ready)
+int operator_zscore_beta_2_se(char **arrayvals, int arraypositions[]);
+int operator_zscore_N_af_2_se(char **arrayvals, int arraypositions[]);
+
+//N (not ready)
+int operator_zscore_beta_af_2_N(char **arrayvals, int arraypositions[]);
+
 
 #endif

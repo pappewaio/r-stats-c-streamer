@@ -30,9 +30,13 @@ cat rinc_testdata | ./build/stat_r_in_c pval_oddsratio_2_zscore --skiplines 1 --
 # Same as above but without index (which is accomplished by not specifying --index)
 cat rinc_testdata | ./build/stat_r_in_c pval_oddsratio_2_zscore --skiplines 1 --pvalue 2 --oddsratio 3
 
-# Use other functions
+# Use functions for pvalue
 cat rinc_testdata | ./build/stat_r_in_c pval_beta_2_zscore --skiplines 1 --pvalue 2 --beta 5
 cat rinc_testdata | ./build/stat_r_in_c pval_beta_N_2_zscore --skiplines 1 --pvalue 2 --beta 5 --N 7
+
+# Use functions for beta
+cat rinc_testdata | ./build/stat_r_in_c zscore_se_2_beta --skiplines 1 --zscore 8 --standarderror 6
+cat rinc_testdata | ./build/stat_r_in_c zscore_N_af_2_beta --skiplines 1 --zscore 8 --N 7 --af 4
 
 
 ```
