@@ -32,12 +32,18 @@ cat rinc_testdata | ./build/stat_r_in_c pval_oddsratio_2_zscore --skiplines 1 --
 
 # Use functions for pvalue
 cat rinc_testdata | ./build/stat_r_in_c pval_beta_2_zscore --skiplines 1 --pvalue 2 --beta 5
-cat rinc_testdata | ./build/stat_r_in_c pval_beta_N_2_zscore --skiplines 1 --pvalue 2 --beta 5 --N 7
+cat rinc_testdata | ./build/stat_r_in_c pval_beta_N_2_zscore --skiplines 1 --pvalue 2 --beta 5 --Nindividuals 7
 
 # Use functions for beta
 cat rinc_testdata | ./build/stat_r_in_c zscore_se_2_beta --skiplines 1 --zscore 8 --standarderror 6
-cat rinc_testdata | ./build/stat_r_in_c zscore_N_af_2_beta --skiplines 1 --zscore 8 --N 7 --af 4
+cat rinc_testdata | ./build/stat_r_in_c zscore_N_af_2_beta --skiplines 1 --zscore 8 --Nindividuals 7 --allelefreq 4
 
+# Use functions for se
+cat rinc_testdata | ./build/stat_r_in_c zscore_beta_2_se --skiplines 1 --zscore 8 --beta 5
+cat rinc_testdata | ./build/stat_r_in_c zscore_N_af_2_se --skiplines 1 --zscore 8 --Nindividuals 7 --allelefreq 4
+
+# Use functions for allele frequency
+cat rinc_testdata | ./build/stat_r_in_c zscore_beta_af_2_N --skiplines 1 --zscore 8 --beta 5 --allelefreq 4
 
 ```
 

@@ -48,13 +48,21 @@ int generate_header(char *operator_name, int indexcolumn) {
       strcmp(operator_name, "zscore_N_af_2_beta") == 0 
     ) {
       printf("%s\n", "BETA");
+  } else if (
+      strcmp(operator_name, "zscore_beta_2_se") == 0 ||
+      strcmp(operator_name, "zscore_N_af_2_se") == 0 
+    ) {
+      printf("%s\n", "SE");
+  } else if (
+      strcmp(operator_name, "zscore_beta_af_2_N") == 0 
+    ) {
+      printf("%s\n", "N");
   } else {
     fprintf(stderr, "[ERROR] Cannot make new header, unknown function: %s\n", operator_name);
   }
 
   return 0;
 }
-
 
 
 /******************************
@@ -271,4 +279,74 @@ int operator_zscore_N_af_2_beta(char **arrayvals, int arraypositions[]) {
   return 0;
 }
 
+
+// se from zscore and beta (linear regression)
+/* 
+ * Use the test statistics and the estimated effects to infer SE
+*/
+int operator_zscore_beta_2_se(char **arrayvals, int arraypositions[]) {
+  double zscore = strtod(arrayvals[arraypositions[5]], NULL);
+  double beta = strtod(arrayvals[arraypositions[2]], NULL);
+
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse floating point number");
+    errno = 0;
+
+    return 1;
+  }
+
+  printf("%lf\n", beta/zscore );
+
+  return 0;
+}
+
+
+// se from zscore and beta (linear regression)
+/* 
+  Use the test statistic, sample size, and allele frequency to infer standard errors
+  Assumptions:
+  Error creeps in from var(SNP) not being 2p(1-p),
+  Shows upward bias in test data.
+  Citation: Supplement of https://www.nature.com/articles/ng.3538
+*/
+int operator_zscore_N_af_2_se(char **arrayvals, int arraypositions[]) {
+  double zscore = strtod(arrayvals[arraypositions[5]], NULL);
+  double Nindividuals = strtod(arrayvals[arraypositions[4]], NULL);
+  double allelefreq = strtod(arrayvals[arraypositions[6]], NULL);
+
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse floating point number");
+    errno = 0;
+
+    return 1;
+  }
+
+  printf("%lf\n", 1/sqrt(2*allelefreq*(1-allelefreq)*(Nindividuals+zscore*zscore)) );
+
+  return 0;
+}
+
+// N from zscore, beta and af (linear regression)
+/* 
+ Derived the sample size from beta, z, and allele frequency
+ Error can come in from:
+   1) Assumption that var(SNP) = 2p(1-p) / e.g., HWE not true, SNPs standardized, reference p not good
+ Shows upward bias in test data.
+*/
+int operator_zscore_beta_af_2_N(char **arrayvals, int arraypositions[]) {
+  double zscore = strtod(arrayvals[arraypositions[5]], NULL);
+  double beta = strtod(arrayvals[arraypositions[2]], NULL);
+  double allelefreq = strtod(arrayvals[arraypositions[6]], NULL);
+
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse floating point number");
+    errno = 0;
+
+    return 1;
+  }
+
+  printf("%lf\n", ((zscore*zscore)/(2*allelefreq*(1-allelefreq)*beta*beta)) - zscore*zscore );
+
+  return 0;
+}
 

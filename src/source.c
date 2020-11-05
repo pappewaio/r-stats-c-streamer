@@ -60,6 +60,15 @@ int main(int argc, char *argv[]) {
   } else if (strcmp(argv[1], "zscore_N_af_2_beta") == 0) {
     operator = &operator_zscore_N_af_2_beta;
     strcpy(operator_name, "zscore_N_af_2_beta");
+  } else if (strcmp(argv[1], "zscore_beta_2_se") == 0) {
+    operator = &operator_zscore_beta_2_se;
+    strcpy(operator_name, "zscore_beta_2_se");
+  } else if (strcmp(argv[1], "zscore_N_af_2_se") == 0) {
+    operator = &operator_zscore_N_af_2_se;
+    strcpy(operator_name, "zscore_N_af_2_se");
+  } else if (strcmp(argv[1], "zscore_beta_af_2_N") == 0) {
+    operator = &operator_zscore_beta_af_2_N;
+    strcpy(operator_name, "zscore_beta_af_2_N");
   } else {
     fprintf(stderr, "[ERROR] Unknown function: %s", argv[1]);
   }
@@ -170,14 +179,14 @@ int main(int argc, char *argv[]) {
   if (allelefreq != 0) { argtot++;}
 
   // init argcolvals (pvalue always first element, oddsratio second, etc)
-  int argcolvals[5] = {0};
+  int argcolvals[7] = {0};
   if (pvalue != 0) { argcolvals[0] = pvalue;}
   if (oddsratio != 0) { argcolvals[1] = oddsratio;}
   if (beta != 0) { argcolvals[2] = oddsratio;}
   if (standarderror != 0) { argcolvals[3] = oddsratio;}
   if (Nindividuals != 0) { argcolvals[4] = Nindividuals;}
   if (zscore != 0) { argcolvals[5] = zscore;}
-  if (allelefreq != 0) { argcolvals[5] = allelefreq;}
+  if (allelefreq != 0) { argcolvals[6] = allelefreq;}
 
   // return value if this function has no errors
   int return_value = 0;
