@@ -21,6 +21,7 @@ int main(int argc, char *argv[]) {
   char *buf = NULL;
   size_t buf_len = 0;
   ssize_t bytes_read = 0;
+  int len;
 
   //int (*operator)(char*);
   int (*operator)(char**, int*);
@@ -72,6 +73,52 @@ int main(int argc, char *argv[]) {
   } else {
     fprintf(stderr, "[ERROR] Unknown function: %s", argv[1]);
   }
+
+  // Define list
+  typedef struct node {
+    char strvar[256];
+    struct node * next;
+  } node_t;
+
+
+  // Parse file of functions
+  char const* const fileName = "functiontestfile.txt"; 
+  FILE* file = fopen(fileName, "r"); /* should check the result */
+  char line[256];
+
+  // Initiate list structure and access first row of file
+  node_t * head = NULL;
+  head = (node_t *) malloc(sizeof(node_t));
+  fgets(line, sizeof(line), file);
+  // remove newline
+  len = strlen(line);
+  if( line[len-1] == '\n' ) {
+   line[len-1] = 0;
+  }
+  strcpy(head->strvar,line);
+  node_t * current = head;
+
+  while (fgets(line, sizeof(line), file)) {
+    // remove newline
+    len = strlen(line);
+    if( line[len-1] == '\n' ) {
+     line[len-1] = 0;
+    }
+
+    head->next = (node_t *) malloc(sizeof(node_t));
+    strcpy(head->next->strvar,line);
+    head->next->next = NULL;
+  }
+  /* may check feof here to make a difference between eof and io failure -- network
+     timeout for instance */
+  fclose(file);
+
+  //check what we got in our list
+  while (current != NULL) {
+      printf("%s\n", current->strvar);
+      current = current->next;
+  }
+
 
   // Parse arguments
   int c;
@@ -206,7 +253,6 @@ int main(int argc, char *argv[]) {
   getline(&buf, &buf_len, stdin);
 
   // remove newline from buf
-  int len;
   len = strlen(buf);
   if( buf[len-1] == '\n' ) {
    buf[len-1] = 0;
@@ -261,7 +307,6 @@ int main(int argc, char *argv[]) {
   while ((bytes_read = getline(&buf, &buf_len, stdin)) != -1) {
 
     // remove newline
-    int len;
     len = strlen(buf);
     if( buf[len-1] == '\n' ) {
      buf[len-1] = 0;

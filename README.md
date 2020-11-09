@@ -45,6 +45,9 @@ cat rinc_testdata | ./build/stat_r_in_c zscore_N_af_2_se --skiplines 1 --zscore 
 # Use functions for allele frequency
 cat rinc_testdata | ./build/stat_r_in_c zscore_beta_af_2_N --skiplines 1 --zscore 8 --beta 5 --allelefreq 4
 
+# Use functionfile to fire multiple simultaneous conversion functions
+cat rinc_testdata | ./build/stat_r_in_c zscore_beta_af_2_N --skiplines 1 --index 1 --pvalue 2 --oddsratio 3 --allelefreq 4 --beta 5 --standarderror 6 --Nindividuals 7 --zscore 8
+
 ```
 
 ### Build singularity image
