@@ -8,6 +8,9 @@
 
 #include "Rmath.h"
 
+//utils
+int set_operator(char *operator_inname);
+
 //basic R
 int operator_qnorm(char **arrayvals, int arraypositions[]);
 

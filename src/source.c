@@ -26,60 +26,23 @@ int main(int argc, char *argv[]) {
   //int (*operator)(char*);
   int (*operator)(char**, int*);
 
-  char operator_name[35] = "function_placeholder";
+  char operator_name[256] = "function_placeholder";
 
   if (argc < 2) {
     fprintf(stderr, "[ERROR] No argument given for the function to use\n");
     return 1;
   }
 
-  // Declare the different functions we can use as operators
-  if (strcmp(argv[1], "qnorm") == 0) {
-    operator = &operator_qnorm;
-    strcpy(operator_name, "qnorm");
-  } else if (strcmp(argv[1], "pval_oddsratio_2_zscore") == 0) {
-    operator = &operator_pval_oddsratio_2_zscore;
-    strcpy(operator_name, "pval_oddsratio_2_zscore");
-  } else if (strcmp(argv[1], "pval_beta_2_zscore") == 0) {
-    operator = &operator_pval_beta_2_zscore;
-    strcpy(operator_name, "pval_beta_2_zscore");
-  } else if (strcmp(argv[1], "pval_beta_N_2_zscore") == 0) {
-    operator = &operator_pval_beta_N_2_zscore;
-    strcpy(operator_name, "pval_beta_N_2_zscore");
-  } else if (strcmp(argv[1], "beta_se_2_zscore") == 0) {
-    operator = &operator_beta_se_2_zscore;
-    strcpy(operator_name, "beta_se_2_zscore");
-  } else if (strcmp(argv[1], "zscore_N_2_pvalue") == 0) {
-    operator = &operator_zscore_N_2_pvalue;
-    strcpy(operator_name, "zscore_N_2_pvalue");
-  } else if (strcmp(argv[1], "zscore_2_pvalue") == 0) {
-    operator = &operator_zscore_2_pvalue;
-    strcpy(operator_name, "zscore_2_pvalue");
-  } else if (strcmp(argv[1], "zscore_se_2_beta") == 0) {
-    operator = &operator_zscore_se_2_beta;
-    strcpy(operator_name, "zscore_se_2_beta");
-  } else if (strcmp(argv[1], "zscore_N_af_2_beta") == 0) {
-    operator = &operator_zscore_N_af_2_beta;
-    strcpy(operator_name, "zscore_N_af_2_beta");
-  } else if (strcmp(argv[1], "zscore_beta_2_se") == 0) {
-    operator = &operator_zscore_beta_2_se;
-    strcpy(operator_name, "zscore_beta_2_se");
-  } else if (strcmp(argv[1], "zscore_N_af_2_se") == 0) {
-    operator = &operator_zscore_N_af_2_se;
-    strcpy(operator_name, "zscore_N_af_2_se");
-  } else if (strcmp(argv[1], "zscore_beta_af_2_N") == 0) {
-    operator = &operator_zscore_beta_af_2_N;
-    strcpy(operator_name, "zscore_beta_af_2_N");
-  } else {
-    fprintf(stderr, "[ERROR] Unknown function: %s", argv[1]);
-  }
+
+  //Check if operator is available
+  //moved to stat_operators.c
 
   // Define list
   typedef struct node {
     char strvar[256];
+    //char strvarname[256];
     struct node * next;
   } node_t;
-
 
   // Parse file of functions
   char const* const fileName = "functiontestfile.txt"; 
@@ -96,6 +59,7 @@ int main(int argc, char *argv[]) {
    line[len-1] = 0;
   }
   strcpy(head->strvar,line);
+ // strcpy(head->strvarname,"test1");
   node_t * current = head;
 
   while (fgets(line, sizeof(line), file)) {
@@ -107,6 +71,7 @@ int main(int argc, char *argv[]) {
 
     head->next = (node_t *) malloc(sizeof(node_t));
     strcpy(head->next->strvar,line);
+    //strcpy(head->next->strvarname,"test1");
     head->next->next = NULL;
   }
   /* may check feof here to make a difference between eof and io failure -- network
@@ -116,6 +81,7 @@ int main(int argc, char *argv[]) {
   //check what we got in our list
   while (current != NULL) {
       printf("%s\n", current->strvar);
+      //printf("%s\n", current->strvarname);
       current = current->next;
   }
 
@@ -245,6 +211,10 @@ int main(int argc, char *argv[]) {
   for (i = 1; i <= skiplines; ++i) {
     getline(&buf, &buf_len, stdin);
   }
+  //fix operator and operator name
+  operator = &operator_zscore_beta_af_2_N;
+  strcpy(operator_name, "zscore_beta_af_2_N");
+
   // Make new header based on header function
   generate_header(operator_name, indexcolumn);
 
@@ -298,6 +268,7 @@ int main(int argc, char *argv[]) {
   }
   
   // use user specified operator for first time (a single time)
+  set_operator(&operator, argv[1]);
   return_value = operator(arr, argcolvals);
 
   // free buf2

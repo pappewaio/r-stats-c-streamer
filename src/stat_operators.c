@@ -64,6 +64,43 @@ int generate_header(char *operator_name, int indexcolumn) {
   return 0;
 }
 
+/******************************
+Check if operator is available
+******************************/
+
+int set_operator(int (*operator)(char**, int*), char *operator_inname) {
+  // Declare the different functions we can use as operators
+  if (strcmp(operator_inname, "qnorm") == 0) {
+    *operator = &operator_qnorm;
+  } else if (strcmp(operator_inname, "pval_oddsratio_2_zscore") == 0) {
+    *operator = &operator_pval_oddsratio_2_zscore;
+  } else if (strcmp(operator_inname, "pval_beta_2_zscore") == 0) {
+    *operator = &operator_pval_beta_2_zscore;
+  } else if (strcmp(operator_inname, "pval_beta_N_2_zscore") == 0) {
+    *operator = &operator_pval_beta_N_2_zscore;
+  } else if (strcmp(operator_inname, "beta_se_2_zscore") == 0) {
+    *operator = &operator_beta_se_2_zscore;
+  } else if (strcmp(operator_inname, "zscore_N_2_pvalue") == 0) {
+    *operator = &operator_zscore_N_2_pvalue;
+  } else if (strcmp(operator_inname, "zscore_2_pvalue") == 0) {
+    *operator = &operator_zscore_2_pvalue;
+  } else if (strcmp(operator_inname, "zscore_se_2_beta") == 0) {
+    *operator = &operator_zscore_se_2_beta;
+  } else if (strcmp(operator_inname, "zscore_N_af_2_beta") == 0) {
+    *operator = &operator_zscore_N_af_2_beta;
+  } else if (strcmp(operator_inname, "zscore_beta_2_se") == 0) {
+    *operator = &operator_zscore_beta_2_se;
+  } else if (strcmp(operator_inname, "zscore_N_af_2_se") == 0) {
+    *operator = &operator_zscore_N_af_2_se;
+  } else if (strcmp(operator_inname, "zscore_beta_af_2_N") == 0) {
+    *operator = &operator_zscore_beta_af_2_N;
+  } else {
+    fprintf(stderr, "[ERROR] Unknown function: %s", operator_inname);
+  }
+
+  return 0;
+
+}
 
 /******************************
 Compute per-SNP default Rmath R functions
