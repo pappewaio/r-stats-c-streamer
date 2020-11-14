@@ -23,71 +23,12 @@ int main(int argc, char *argv[]) {
   ssize_t bytes_read = 0;
   int len;
 
-  int (*operator)(char**, int*);
-  char operator_name[256] = "function_placeholder";
-
-  if (argc < 2) {
-    fprintf(stderr, "[ERROR] No argument given for the function to use\n");
-    return 1;
-  }
-
-
-  //Check if operator is available
-  //moved to stat_operators.c
-
-  // Define list
+  // Define list to store functions from file
   typedef struct node {
     char strvar[256];
-    //char strvarname[256];
     struct node * next;
   } node_t;
 
-  // Parse file of functions
-  char const* const fileName = "functiontestfile.txt"; 
-  FILE* file = fopen(fileName, "r"); /* should check the result */
-  char line[256];
-
-  // Initiate list structure and access first row of file
-  node_t * head = NULL;
-  head = (node_t *) malloc(sizeof(node_t));
-  fgets(line, sizeof(line), file);
-  // remove newline
-  len = strlen(line);
-  if( line[len-1] == '\n' ) {
-   line[len-1] = 0;
-  }
-  strcpy(head->strvar,line);
- // strcpy(head->strvarname,"test1");
-  node_t * current = head;
-
-  int funlen = 1;
-  while (fgets(line, sizeof(line), file)) {
-    funlen++;
-    // remove newline
-    len = strlen(line);
-    if( line[len-1] == '\n' ) {
-     line[len-1] = 0;
-    }
-
-    head->next = (node_t *) malloc(sizeof(node_t));
-    strcpy(head->next->strvar,line);
-    //strcpy(head->next->strvarname,"test1");
-    head->next->next = NULL;
-  }
-  /* may check feof here to make a difference between eof and io failure -- network
-     timeout for instance */
-  fclose(file);
-
-  //store in arrfun from our list
-  int (*arrfun[funlen])(char**, int*);
-
-  int inx = 0;
-  while (current != NULL) {
-      printf("%s\n", current->strvar);
-      populate_array(arrfun, current->strvar, inx);
-      current = current->next;
-      inx++;
-  }
 
   // Parse arguments
   int c;
@@ -100,6 +41,8 @@ int main(int argc, char *argv[]) {
   int Nindividuals = 0;
   int zscore = 0;
   int allelefreq = 0;
+  char functionfile[256];
+  //char *functionfile = "functiontestfile.txt";
   
   while (1)
   {
@@ -116,10 +59,11 @@ int main(int argc, char *argv[]) {
         {"Nindividuals",    required_argument, 0, 'n'},
         {"zscore",    required_argument, 0, 'z'},
         {"allelefreq",    required_argument, 0, 'a'},
+        {"functionfile",    required_argument, 0, 'f'},
         {0, 0, 0, 0}
       };
 
-    c = getopt_long (argc, argv, "s:i:p:o:b:e:n:z:a:0",
+    c = getopt_long (argc, argv, "s:i:p:o:b:e:n:z:a:f:0",
                      long_options, &option_index);
 
     /* Detect the end of the options. */
@@ -174,6 +118,10 @@ int main(int argc, char *argv[]) {
         allelefreq = atoi(optarg) -1; 
         break;
 
+      case 'f':
+        strcpy(functionfile, optarg); 
+        break;
+
       case '?':
         /* getopt_long already printed an error message. */
         break;
@@ -181,6 +129,57 @@ int main(int argc, char *argv[]) {
       default:
         abort ();
       }
+  }
+  
+  // check that at least one function param has been given
+  if (functionfile[0] == '\0' ) {
+    fprintf(stderr, "[ERROR] No argument given for the function file to use. Supply a file with one function for each row\n");
+    return 1;
+  }
+  
+  // Parse file of functions if available
+  FILE* file = fopen(functionfile, "r"); /* should check the result */
+  char line[256];
+
+  // Initiate list structure and access first row of file
+  node_t * head = NULL;
+  head = (node_t *) malloc(sizeof(node_t));
+  fgets(line, sizeof(line), file);
+  // remove newline
+  len = strlen(line);
+  if( line[len-1] == '\n' ) {
+   line[len-1] = 0;
+  }
+  strcpy(head->strvar,line);
+  node_t * current = head;
+
+  // Continue to fill the list with remaining rows
+  int funlen = 1;
+  while (fgets(line, sizeof(line), file)) {
+    funlen++;
+    // remove newline
+    len = strlen(line);
+    if( line[len-1] == '\n' ) {
+     line[len-1] = 0;
+    }
+
+    head->next = (node_t *) malloc(sizeof(node_t));
+    strcpy(head->next->strvar,line);
+    head->next->next = NULL;
+  }
+  /* may check feof here to make a difference between eof and io failure -- network
+     timeout for instance */
+  fclose(file);
+
+  //store in arrfun from our list
+  int (*arrfun[funlen])(char**, int*);
+
+  int inx = 0;
+  while (current != NULL) {
+      //printf("%s\n", current->strvar);
+      populate_array(arrfun, current->strvar, inx);
+      current = current->next;
+      inx++;
   }
 
 
@@ -215,18 +214,18 @@ int main(int argc, char *argv[]) {
     getline(&buf, &buf_len, stdin);
   }
   // fix operator and operator name
-  operator = &operator_zscore_beta_af_2_N;
-  strcpy(operator_name, "zscore_beta_af_2_N");
+  //operator = &operator_zscore_beta_af_2_N;
+  //strcpy(operator_name, "zscore_beta_af_2_N");
 
-  // Make new header based on header function
-  // generate_header(operator_name, indexcolumn);
-
+  // Make new header 
   // print index
-  printf("%s", "0");
+  if (indexcolumn != 0) {
+    printf("%s", "0");
+  }
 
+  // print remaining colnames
   current = head;
   while (current != NULL) {
-    //printf("%s\n", current->strvar);
     printf("\t%s", current->strvar);
     current = current->next;
   }
@@ -281,15 +280,10 @@ int main(int argc, char *argv[]) {
     printf("%ld", inxval );
   }
   
-  // use user specified operator for first time (a single time)
-  //set_operator(operator, argv[1]);
-  //set_operator(operator, "pval_oddsratio_2_zscore");
-
-  current = head;
-  while (current != NULL) {
+  int j;
+  for (j = 0; j < 2; j++){
     printf("\t");
-    return_value = operator(arr, argcolvals);
-    current = current->next;
+    (*arrfun[j]) (arr, argcolvals);
   }
   printf("\n");
 
@@ -321,12 +315,10 @@ int main(int argc, char *argv[]) {
       printf("%ld", inxval );
     }
     
-    // use user specified operator for the second time(loop over remaining rows)
-    current = head;
-    while (current != NULL) {
+    // use user specified operators for the remaining rows
+    for (j = 0; j < 2; j++){
       printf("\t");
-      return_value = operator(arr, argcolvals);
-      current = current->next;
+      (*arrfun[j]) (arr, argcolvals);
     }
     printf("\n");
 
