@@ -14,91 +14,92 @@ Generate header function
  Always generate a header, but depending on function and if inclusion of index
  it can look a bit different.
 ******************************/
-int generate_header(char *operator_name, int indexcolumn) {
-
-  if (errno != 0) {
-    perror("[ERROR] Failed to parse character input");
-    errno = 0;
-
-    return 1;
-  }
-
-  // Add index column if specified
-    if (indexcolumn != 0) {
-      printf("%s\t", "0");
-    }
-
-  // Make new header based on function name
-  if (strcmp(operator_name, "qnorm") == 0) {
-      printf("%s\n", "QNORM");
-  } else if (
-      strcmp(operator_name, "beta_se_2_zscore") == 0 ||
-      strcmp(operator_name, "pval_oddsratio_2_zscore") == 0 ||
-      strcmp(operator_name, "pval_beta_2_zscore") == 0 ||
-      strcmp(operator_name, "pval_beta_N_2_zscore") == 0 
-    ) {
-      printf("%s\n", "ZSCORE");
-  } else if (
-      strcmp(operator_name, "zscore_N_2_pvalue") == 0 ||
-      strcmp(operator_name, "zscore_2_pvalue") == 0 
-    ) {
-      printf("%s\n", "PVALUE");
-  } else if (
-      strcmp(operator_name, "zscore_se_2_beta") == 0 ||
-      strcmp(operator_name, "zscore_N_af_2_beta") == 0 
-    ) {
-      printf("%s\n", "BETA");
-  } else if (
-      strcmp(operator_name, "zscore_beta_2_se") == 0 ||
-      strcmp(operator_name, "zscore_N_af_2_se") == 0 
-    ) {
-      printf("%s\n", "SE");
-  } else if (
-      strcmp(operator_name, "zscore_beta_af_2_N") == 0 
-    ) {
-      printf("%s\n", "N");
-  } else {
-    fprintf(stderr, "[ERROR] Cannot make new header, unknown function: %s\n", operator_name);
-  }
-
-  return 0;
-}
+//int generate_header(char *operator_name, int indexcolumn) {
+//
+//  if (errno != 0) {
+//    perror("[ERROR] Failed to parse character input");
+//    errno = 0;
+//
+//    return 1;
+//  }
+//
+//  // Add index column if specified
+//    if (indexcolumn != 0) {
+//      printf("%s\t", "0");
+//    }
+//
+//  // Make new header based on function name
+//  if (strcmp(operator_name, "qnorm") == 0) {
+//      printf("%s\n", "QNORM");
+//  } else if (
+//      strcmp(operator_name, "beta_se_2_zscore") == 0 ||
+//      strcmp(operator_name, "pval_oddsratio_2_zscore") == 0 ||
+//      strcmp(operator_name, "pval_beta_2_zscore") == 0 ||
+//      strcmp(operator_name, "pval_beta_N_2_zscore") == 0 
+//    ) {
+//      printf("%s\n", "ZSCORE");
+//  } else if (
+//      strcmp(operator_name, "zscore_N_2_pvalue") == 0 ||
+//      strcmp(operator_name, "zscore_2_pvalue") == 0 
+//    ) {
+//      printf("%s\n", "PVALUE");
+//  } else if (
+//      strcmp(operator_name, "zscore_se_2_beta") == 0 ||
+//      strcmp(operator_name, "zscore_N_af_2_beta") == 0 
+//    ) {
+//      printf("%s\n", "BETA");
+//  } else if (
+//      strcmp(operator_name, "zscore_beta_2_se") == 0 ||
+//      strcmp(operator_name, "zscore_N_af_2_se") == 0 
+//    ) {
+//      printf("%s\n", "SE");
+//  } else if (
+//      strcmp(operator_name, "zscore_beta_af_2_N") == 0 
+//    ) {
+//      printf("%s\n", "N");
+//  } else {
+//    fprintf(stderr, "[ERROR] Cannot make new header, unknown function: %s\n", operator_name);
+//  }
+//
+//  return 0;
+//}
 
 /******************************
 Check if operator is available
 ******************************/
 
-int set_operator(int (*operator)(char**, int*), char *operator_inname) {
+void *populate_array(int (**p)(char**, int*), char *operator_inname, int inx) {
+  
   // Declare the different functions we can use as operators
   if (strcmp(operator_inname, "qnorm") == 0) {
-    *operator = &operator_qnorm;
+    p[inx] = operator_qnorm;
   } else if (strcmp(operator_inname, "pval_oddsratio_2_zscore") == 0) {
-    *operator = &operator_pval_oddsratio_2_zscore;
+    p[inx] = operator_pval_oddsratio_2_zscore;
   } else if (strcmp(operator_inname, "pval_beta_2_zscore") == 0) {
-    *operator = &operator_pval_beta_2_zscore;
+    p[inx] = operator_pval_beta_2_zscore;
   } else if (strcmp(operator_inname, "pval_beta_N_2_zscore") == 0) {
-    *operator = &operator_pval_beta_N_2_zscore;
+    p[inx] = operator_pval_beta_N_2_zscore;
   } else if (strcmp(operator_inname, "beta_se_2_zscore") == 0) {
-    *operator = &operator_beta_se_2_zscore;
+    p[inx] = operator_beta_se_2_zscore;
   } else if (strcmp(operator_inname, "zscore_N_2_pvalue") == 0) {
-    *operator = &operator_zscore_N_2_pvalue;
+    p[inx] = operator_zscore_N_2_pvalue;
   } else if (strcmp(operator_inname, "zscore_2_pvalue") == 0) {
-    *operator = &operator_zscore_2_pvalue;
+    p[inx] = operator_zscore_2_pvalue;
   } else if (strcmp(operator_inname, "zscore_se_2_beta") == 0) {
-    *operator = &operator_zscore_se_2_beta;
+    p[inx] = operator_zscore_se_2_beta;
   } else if (strcmp(operator_inname, "zscore_N_af_2_beta") == 0) {
-    *operator = &operator_zscore_N_af_2_beta;
+    p[inx] = operator_zscore_N_af_2_beta;
   } else if (strcmp(operator_inname, "zscore_beta_2_se") == 0) {
-    *operator = &operator_zscore_beta_2_se;
+    p[inx] = operator_zscore_beta_2_se;
   } else if (strcmp(operator_inname, "zscore_N_af_2_se") == 0) {
-    *operator = &operator_zscore_N_af_2_se;
+    p[inx] = operator_zscore_N_af_2_se;
   } else if (strcmp(operator_inname, "zscore_beta_af_2_N") == 0) {
-    *operator = &operator_zscore_beta_af_2_N;
+    p[inx] = operator_zscore_beta_af_2_N;
   } else {
     fprintf(stderr, "[ERROR] Unknown function: %s", operator_inname);
   }
 
-  return 0;
+  return p;
 
 }
 
@@ -122,7 +123,7 @@ int operator_qnorm(char **arrayvals, int arraypositions[]) {
     return 1;
   }
 
-  printf("%lf\n", qnorm(prob, 0.0, 1.0, 1, 0));
+  printf("%lf", qnorm(prob, 0.0, 1.0, 1, 0));
 
   return 0;
 }
@@ -146,7 +147,7 @@ int operator_beta_se_2_zscore(char **arrayvals, int arraypositions[]) {
     return 1;
   }
 
-  printf("%lf\n", beta/stderror);
+  printf("%lf", beta/stderror);
 
   return 0;
 }
@@ -169,7 +170,7 @@ int operator_pval_oddsratio_2_zscore(char **arrayvals, int arraypositions[]) {
 
   //sign funciton to get -1,0,1
   int sign = (log(or) > 0) - (log(or) < 0);
-  printf("%lf\n", sign*fabs(qnorm(prob, 0.0, 1.0, 1, 0)));
+  printf("%lf", sign*fabs(qnorm(prob, 0.0, 1.0, 1, 0)));
 
   return 0;
 }
@@ -194,7 +195,7 @@ int operator_pval_beta_2_zscore(char **arrayvals, int arraypositions[]) {
 
   //sign funciton to get -1,0,1
   int sign = (log(beta) > 0) - (log(beta) < 0);
-  printf("%lf\n", sign*fabs(qnorm(prob, 0.0, 1.0, 1, 0)));
+  printf("%lf", sign*fabs(qnorm(prob, 0.0, 1.0, 1, 0)));
 
   return 0;
 }
@@ -218,7 +219,7 @@ int operator_pval_beta_N_2_zscore(char **arrayvals, int arraypositions[]) {
 
   //sign funciton to get -1,0,1
   int sign = (log(beta) > 0) - (log(beta) < 0);
-  printf("%lf\n", sign*fabs( qt( prob/2, Nindividuals-2, 1, 0)));
+  printf("%lf", sign*fabs( qt( prob/2, Nindividuals-2, 1, 0)));
 
   return 0;
 }
@@ -243,7 +244,7 @@ int operator_zscore_N_2_pvalue(char **arrayvals, int arraypositions[]) {
     return 1;
   }
 
-  printf("%lf\n", 2*pt(-fabs(zscore), Nindividuals-2, 1, 0));
+  printf("%lf", 2*pt(-fabs(zscore), Nindividuals-2, 1, 0));
 
   return 0;
 }
@@ -265,7 +266,7 @@ int operator_zscore_2_pvalue(char **arrayvals, int arraypositions[]) {
     return 1;
   }
 
-  printf("%lf\n", 2*pnorm( -abs( zscore ), 0, 1, 1, 0 ));
+  printf("%lf", 2*pnorm( -abs( zscore ), 0, 1, 1, 0 ));
 
   return 0;
 }
@@ -286,7 +287,7 @@ int operator_zscore_se_2_beta(char **arrayvals, int arraypositions[]) {
     return 1;
   }
 
-  printf("%lf\n", zscore*stderror);
+  printf("%lf", zscore*stderror);
 
   return 0;
 }
@@ -311,7 +312,7 @@ int operator_zscore_N_af_2_beta(char **arrayvals, int arraypositions[]) {
     return 1;
   }
 
-  printf("%lf\n", zscore/sqrt(2*af*(1-af)*(Nindividuals+zscore*zscore)) );
+  printf("%lf", zscore/sqrt(2*af*(1-af)*(Nindividuals+zscore*zscore)) );
 
   return 0;
 }
@@ -332,7 +333,7 @@ int operator_zscore_beta_2_se(char **arrayvals, int arraypositions[]) {
     return 1;
   }
 
-  printf("%lf\n", beta/zscore );
+  printf("%lf", beta/zscore );
 
   return 0;
 }
@@ -358,7 +359,7 @@ int operator_zscore_N_af_2_se(char **arrayvals, int arraypositions[]) {
     return 1;
   }
 
-  printf("%lf\n", 1/sqrt(2*allelefreq*(1-allelefreq)*(Nindividuals+zscore*zscore)) );
+  printf("%lf", 1/sqrt(2*allelefreq*(1-allelefreq)*(Nindividuals+zscore*zscore)) );
 
   return 0;
 }
@@ -382,7 +383,7 @@ int operator_zscore_beta_af_2_N(char **arrayvals, int arraypositions[]) {
     return 1;
   }
 
-  printf("%lf\n", ((zscore*zscore)/(2*allelefreq*(1-allelefreq)*beta*beta)) - zscore*zscore );
+  printf("%lf", ((zscore*zscore)/(2*allelefreq*(1-allelefreq)*beta*beta)) - zscore*zscore );
 
   return 0;
 }

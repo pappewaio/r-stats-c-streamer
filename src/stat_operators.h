@@ -9,7 +9,7 @@
 #include "Rmath.h"
 
 //utils
-int set_operator(char *operator_inname);
+void *populate_array(int (**p)(char**, int*), char *operator_inname, int inx);
 
 //basic R
 int operator_qnorm(char **arrayvals, int arraypositions[]);

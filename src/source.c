@@ -23,9 +23,7 @@ int main(int argc, char *argv[]) {
   ssize_t bytes_read = 0;
   int len;
 
-  //int (*operator)(char*);
   int (*operator)(char**, int*);
-
   char operator_name[256] = "function_placeholder";
 
   if (argc < 2) {
@@ -62,7 +60,9 @@ int main(int argc, char *argv[]) {
  // strcpy(head->strvarname,"test1");
   node_t * current = head;
 
+  int funlen = 1;
   while (fgets(line, sizeof(line), file)) {
+    funlen++;
     // remove newline
     len = strlen(line);
     if( line[len-1] == '\n' ) {
@@ -78,13 +78,16 @@ int main(int argc, char *argv[]) {
      timeout for instance */
   fclose(file);
 
-  //check what we got in our list
+  //store in arrfun from our list
+  int (*arrfun[funlen])(char**, int*);
+
+  int inx = 0;
   while (current != NULL) {
       printf("%s\n", current->strvar);
-      //printf("%s\n", current->strvarname);
+      populate_array(arrfun, current->strvar, inx);
       current = current->next;
+      inx++;
   }
-
 
   // Parse arguments
   int c;
@@ -211,12 +214,23 @@ int main(int argc, char *argv[]) {
   for (i = 1; i <= skiplines; ++i) {
     getline(&buf, &buf_len, stdin);
   }
-  //fix operator and operator name
+  // fix operator and operator name
   operator = &operator_zscore_beta_af_2_N;
   strcpy(operator_name, "zscore_beta_af_2_N");
 
   // Make new header based on header function
-  generate_header(operator_name, indexcolumn);
+  // generate_header(operator_name, indexcolumn);
+
+  // print index
+  printf("%s", "0");
+
+  current = head;
+  while (current != NULL) {
+    //printf("%s\n", current->strvar);
+    printf("\t%s", current->strvar);
+    current = current->next;
+  }
+  printf("\n");
 
   // Start processing first row
   // Get first line to set correct dimensions
@@ -264,12 +278,20 @@ int main(int argc, char *argv[]) {
   unsigned long int inxval = 0;
   if (indexcolumn != 0) {
     inxval = strtol(arr[indexcolumn-1], NULL, 10);
-    printf("%ld\t", inxval );
+    printf("%ld", inxval );
   }
   
   // use user specified operator for first time (a single time)
-  set_operator(&operator, argv[1]);
-  return_value = operator(arr, argcolvals);
+  //set_operator(operator, argv[1]);
+  //set_operator(operator, "pval_oddsratio_2_zscore");
+
+  current = head;
+  while (current != NULL) {
+    printf("\t");
+    return_value = operator(arr, argcolvals);
+    current = current->next;
+  }
+  printf("\n");
 
   // free buf2
   if (buf2) free(buf2);
@@ -296,11 +318,17 @@ int main(int argc, char *argv[]) {
     // Check if index is assigned, if so, then use it
     if (indexcolumn != 0) {
       inxval = strtol(arr[indexcolumn-1], NULL, 10);
-      printf("%ld\t", inxval );
+      printf("%ld", inxval );
     }
     
     // use user specified operator for the second time(loop over remaining rows)
-    return_value = operator(arr, argcolvals);
+    current = head;
+    while (current != NULL) {
+      printf("\t");
+      return_value = operator(arr, argcolvals);
+      current = current->next;
+    }
+    printf("\n");
 
     if (return_value != 0) {
       break;
