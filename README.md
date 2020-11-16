@@ -23,6 +23,10 @@ zscore_se_2_beta" > functiontestfile.txt
 
 # Test program
 cat rinc_testdata | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 2 --oddsratio 3 --allelefreq 4 --beta 5 --standarderror 6 --Nindividuals 7 --zscore 8
+##0	pval_oddsratio_2_zscore	pval_beta_2_zscore	zscore_N_2_pvalue	zscore_se_2_beta
+##1	1.281552	1.281552	0.317317	-1.200000
+##2	0.000000	0.000000	0.021453	2.990000
+##3	6.706023	6.706023	0.548509	0.660000
 
 ```
 
