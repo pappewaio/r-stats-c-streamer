@@ -151,6 +151,7 @@ int main(int argc, char *argv[]) {
    line[len-1] = 0;
   }
   strcpy(head->strvar,line);
+
   node_t * current = head;
 
   // Continue to fill the list with remaining rows
@@ -163,9 +164,10 @@ int main(int argc, char *argv[]) {
      line[len-1] = 0;
     }
 
-    head->next = (node_t *) malloc(sizeof(node_t));
-    strcpy(head->next->strvar,line);
-    head->next->next = NULL;
+    current->next = (node_t *) malloc(sizeof(node_t));
+    strcpy(current->next->strvar,line);
+    current->next->next = NULL;
+    current = current->next;
   }
   /* may check feof here to make a difference between eof and io failure -- network
      timeout for instance */
@@ -175,6 +177,7 @@ int main(int argc, char *argv[]) {
   int (*arrfun[funlen])(char**, int*);
 
   int inx = 0;
+  current = head;
   while (current != NULL) {
       //printf("%s\n", current->strvar);
       populate_array(arrfun, current->strvar, inx);
@@ -182,8 +185,7 @@ int main(int argc, char *argv[]) {
       inx++;
   }
 
-
-  // Check how many arguments are provided and collect values in an array
+  // Check how many arguments for calculations are provided and collect values in an array
   int argtot = 0;
   if (pvalue != 0) { argtot++;}
   if (oddsratio != 0) { argtot++;}
@@ -213,9 +215,6 @@ int main(int argc, char *argv[]) {
   for (i = 1; i <= skiplines; ++i) {
     getline(&buf, &buf_len, stdin);
   }
-  // fix operator and operator name
-  //operator = &operator_zscore_beta_af_2_N;
-  //strcpy(operator_name, "zscore_beta_af_2_N");
 
   // Make new header 
   // print index
@@ -225,6 +224,10 @@ int main(int argc, char *argv[]) {
 
   // print remaining colnames
   current = head;
+  if (indexcolumn == 0) {
+    printf("%s", current->strvar);
+    current = current->next;
+  }
   while (current != NULL) {
     printf("\t%s", current->strvar);
     current = current->next;
@@ -281,9 +284,13 @@ int main(int argc, char *argv[]) {
   }
   
   int j;
-  for (j = 0; j < 2; j++){
-    printf("\t");
-    (*arrfun[j]) (arr, argcolvals);
+  for (j = 0; j < funlen; j++){
+    if (j == 0 && indexcolumn == 0) {
+      (*arrfun[j]) (arr, argcolvals);
+    }else{
+      printf("\t");
+      (*arrfun[j]) (arr, argcolvals);
+    }
   }
   printf("\n");
 
@@ -316,9 +323,13 @@ int main(int argc, char *argv[]) {
     }
     
     // use user specified operators for the remaining rows
-    for (j = 0; j < 2; j++){
-      printf("\t");
-      (*arrfun[j]) (arr, argcolvals);
+    for (j = 0; j < funlen; j++){
+      if (j == 0 && indexcolumn == 0) {
+        (*arrfun[j]) (arr, argcolvals);
+      }else{
+        printf("\t");
+        (*arrfun[j]) (arr, argcolvals);
+      }
     }
     printf("\n");
 
