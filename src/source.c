@@ -234,6 +234,15 @@ int main(int argc, char *argv[]) {
   }
   printf("\n");
 
+  //free list
+  current = head;
+  while (current != NULL) {
+    head = current;
+    current = head->next->next;
+    free(head->next);
+    free(head->strvar);
+  }
+
   // Start processing first row
   // Get first line to set correct dimensions
   getline(&buf, &buf_len, stdin);
@@ -347,7 +356,7 @@ int main(int argc, char *argv[]) {
   if (buf) free(buf);
 
   // free 2d array pointer elements
-  for ( i = 1; i < nrcols; i++ )
+  for ( i = 0; i < nrcols; i++ )
   {
     free(arr[i]);
   }
