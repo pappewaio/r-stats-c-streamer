@@ -237,10 +237,9 @@ int main(int argc, char *argv[]) {
   //free list
   current = head;
   while (current != NULL) {
-    head = current;
-    current = head->next->next;
-    free(head->next);
-    free(head->strvar);
+    head = current->next;
+    free(current);
+    current = head;
   }
 
   // Start processing first row
