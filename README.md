@@ -1,32 +1,36 @@
-### The utilization of cmake and the rmath library
+### The utilization of cmake and the rmath library (prerequisites)
 - (on Ubuntu): sudo apt install cmake
 - https://github.com/statslabs/rmath
 
-### Build project 
+### Build project and test on test data
 Do this in same folder as CMakeLists.txt & source.c
 
 ```
 # Build project (it will remove old build folders)
 ./build.sh
 
-# create test data using echo command.
-echo -e "0\tpval\tOR\tAF\tbeta\tSE\tN\tzscore
-1\t0.9\t1.2\t0.4\t1.3\t0.2\t40000\t-1.0
-2\t0.5\t1.3\t0.6\t3.3\t0.15\t45000\t2.3
-3\t0.1e-10\t1.1\t0.1\t-0.9\t0.1\t50000\t0.6" > rinc_testdata
+# look at test data using head.
+cat test/testdata/linear_testStats.txt | head | column -t
 
 # create file with functions to apply on each row
-echo -e "pval_oddsratio_2_zscore
-pval_beta_2_zscore
+echo -e "pval_beta_2_zscore
 zscore_N_2_pvalue
 zscore_se_2_beta" > functiontestfile.txt
 
 # Test program
-cat rinc_testdata | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 2 --oddsratio 3 --allelefreq 4 --beta 5 --standarderror 6 --Nindividuals 7 --zscore 8
-##0	pval_oddsratio_2_zscore	pval_beta_2_zscore	zscore_N_2_pvalue	zscore_se_2_beta
-##1	1.281552	1.281552	0.317317	-1.200000
-##2	0.000000	0.000000	0.021453	2.990000
-##3	6.706023	6.706023	0.548509	0.660000
+cat test/testdata/linear_testStats.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 | head
+##0	pval_beta_2_zscore	zscore_N_2_pvalue	zscore_se_2_beta
+##1	1.281552	0.317317	-1.200000
+##2	0.000000	0.021453	2.990000
+##3	6.706023	0.548509	0.660000
+
+```
+
+### Test that it doesnt leak memory using valgrind
+
+### Test that it produces same result as companion R script performing the same operations
+```
+cat test/testdata/linear_testStats.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 | head
 
 ```
 
@@ -40,10 +44,13 @@ sudo singularity build ${fname} ubuntu-18.04_stat_r_in_c.def
 
 
 # Check that image is executable and then test it (change date)
-echo -e "0.9\n0.5\n0.1e-10" | ./20xx-xx-xx-ubuntu-1804_stat_r_in_c.simg stat_r_in_c qnorm
+cat rinc_testdata | ./20xx-xx-xx-ubuntu-1804_stat_r_in_c.simg stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 2 --oddsratio 3 --allelefreq 4 --beta 5 --standarderror 6 --Nindividuals 7 --zscore 8
+
 ```
 
-### Generate 1 million rows test data
+### Generate 1 million rows test data using R 
 ```
 ./gentestdata.sh 1000000 > testdata
 
+
+```
