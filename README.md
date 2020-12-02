@@ -25,11 +25,13 @@ se_from_zscore_N_af
 N_from_zscore_beta_af"> functiontestfile.txt
 
 # Test program
-cat test/testdata/linear_testStats.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 | head
-##0	pval_beta_2_zscore	zscore_N_2_pvalue	zscore_se_2_beta
-##1	1.281552	0.317317	-1.200000
-##2	0.000000	0.021453	2.990000
-##3	6.706023	0.548509	0.660000
+cat test/testdata/linear_testStats.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 | head | column -t
+###0             zscore_from_pval_beta  zscore_from_pval_beta_N  zscore_from_beta_se	etc..
+###rs4819391_G   1.832718               1.834151                 1.834151	etc..
+###rs11089128_G  -0.808975              -0.809215                -0.809215	etc..
+###rs7288972_C   -1.075487              -1.075903                -1.075903	etc..
+###rs2032141_A   2.068237               2.070195                 2.070195	etc..
+###etc...
 
 ```
 
