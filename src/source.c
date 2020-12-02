@@ -286,10 +286,10 @@ int main(int argc, char *argv[]) {
   }
 
   // use index value if available
-  unsigned long int inxval = 0;
+  char inxval[256] = "";
   if (indexcolumn != 0) {
-    inxval = strtol(arr[indexcolumn-1], NULL, 10);
-    printf("%ld", inxval );
+    //inxval = strtol(arr[indexcolumn-1], NULL, 10);
+    printf("%s", arr[indexcolumn-1] );
   }
   
   int j;
@@ -328,8 +328,8 @@ int main(int argc, char *argv[]) {
  
     // Check if index is assigned, if so, then use it
     if (indexcolumn != 0) {
-      inxval = strtol(arr[indexcolumn-1], NULL, 10);
-      printf("%ld", inxval );
+      //inxval = strtol(arr[indexcolumn-1], NULL, 10);
+      printf("%s", arr[indexcolumn-1] );
     }
     
     // use user specified operators for the remaining rows
