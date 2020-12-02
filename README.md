@@ -13,9 +13,16 @@ Do this in same folder as CMakeLists.txt & source.c
 cat test/testdata/linear_testStats.txt | head | column -t
 
 # create file with functions to apply on each row
-echo -e "pval_beta_2_zscore
-zscore_N_2_pvalue
-zscore_se_2_beta" > functiontestfile.txt
+echo -e "zscore_from_pval_beta
+zscore_from_pval_beta_N
+zscore_from_beta_se
+pval_from_zscore_N
+pval_from_zscore
+beta_from_zscore_se
+beta_from_zscore_N_af
+se_from_zscore_beta
+se_from_zscore_N_af
+N_from_zscore_beta_af"> functiontestfile.txt
 
 # Test program
 cat test/testdata/linear_testStats.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 | head
