@@ -65,6 +65,19 @@ if (!is.null(opt$skiplines)) {
   skip <- readLines(f,n=opt$skiplines)
 }
 
+#make new header
+if (!is.null(opt$index)) { 
+  cat("0","\t")
+  cat(funcs[1])
+}else{
+  cat(funcs[1])
+}
+for (func in funcs[2:length(funcs)]){
+  cat("\t")
+  cat(func)
+}
+cat("\n")
+
 while(length(line <- readLines(f,n=1)) > 0) {
   #split line on tab
   strsp <- strsplit(line, split="\t")

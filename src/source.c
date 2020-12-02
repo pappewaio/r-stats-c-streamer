@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
+#include <math.h>
 
 #include "Rmath.h"
 #include "stat_operators.h"
@@ -199,8 +200,8 @@ int main(int argc, char *argv[]) {
   int argcolvals[7] = {0};
   if (pvalue != 0) { argcolvals[0] = pvalue;}
   if (oddsratio != 0) { argcolvals[1] = oddsratio;}
-  if (beta != 0) { argcolvals[2] = oddsratio;}
-  if (standarderror != 0) { argcolvals[3] = oddsratio;}
+  if (beta != 0) { argcolvals[2] = beta;}
+  if (standarderror != 0) { argcolvals[3] = standarderror;}
   if (Nindividuals != 0) { argcolvals[4] = Nindividuals;}
   if (zscore != 0) { argcolvals[5] = zscore;}
   if (allelefreq != 0) { argcolvals[6] = allelefreq;}
@@ -322,6 +323,7 @@ int main(int argc, char *argv[]) {
        arr[i] = (char*) malloc(token_len * sizeof(char) + 1);
        strcpy(arr[i++], token);
        token = strtok(NULL, "\t");
+       //printf("&HERE=%s=HERE&\t", arr[i-1]);
     }
  
     // Check if index is assigned, if so, then use it

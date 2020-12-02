@@ -185,7 +185,10 @@ int operator_pval_oddsratio_2_zscore(char **arrayvals, int arraypositions[]) {
 int operator_pval_beta_2_zscore(char **arrayvals, int arraypositions[]) {
   double prob = strtod(arrayvals[arraypositions[0]], NULL);
   double beta = strtod(arrayvals[arraypositions[2]], NULL);
-
+  //long double beta = strtold(arrayvals[arraypositions[2]], NULL);
+  //printf("%s", arrayvals[arraypositions[2]]);
+  //printf("%Lf", beta);
+ 
   if (errno != 0) {
     perror("[ERROR] Failed to parse floating point number");
     errno = 0;
@@ -194,8 +197,8 @@ int operator_pval_beta_2_zscore(char **arrayvals, int arraypositions[]) {
   }
 
   //sign funciton to get -1,0,1
-  int sign = (log(beta) > 0) - (log(beta) < 0);
-  printf("%lf", sign*fabs(qnorm(prob, 0.0, 1.0, 1, 0)));
+  int sign = (beta > 0) - (beta < 0);
+  printf("%lf", sign*fabs(qnorm(prob/2, 0.0, 1.0, 1, 0)));
 
   return 0;
 }
@@ -244,8 +247,8 @@ int operator_zscore_N_2_pvalue(char **arrayvals, int arraypositions[]) {
     return 1;
   }
 
-  printf("%lf", 2*pt(-fabs(zscore), Nindividuals-2, 1, 0));
-
+  printf("%lf", 2*pt(-1*fabs(zscore), Nindividuals-2, 1, 0));
+  
   return 0;
 }
 
