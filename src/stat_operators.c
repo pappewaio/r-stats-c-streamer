@@ -215,7 +215,7 @@ int operator_pval_from_zscore(char **arrayvals, int arraypositions[]) {
     return 1;
   }
 
-  printf("%lf", 2*pnorm( -abs( zscore ), 0, 1, 1, 0 ));
+  printf("%lf", 2*pnorm( -fabs( zscore ), 0, 1, 1, 0 ));
 
   return 0;
 }
@@ -251,7 +251,7 @@ int operator_beta_from_zscore_se(char **arrayvals, int arraypositions[]) {
 */
 int operator_beta_from_zscore_N_af(char **arrayvals, int arraypositions[]) {
   double zscore = strtod(arrayvals[arraypositions[5]], NULL);
-  double Nindividuals = strtod(arrayvals[arraypositions[4]], NULL);
+  long double Nindividuals = strtod(arrayvals[arraypositions[4]], NULL);
   double af = strtod(arrayvals[arraypositions[6]], NULL);
 
   if (errno != 0) {
