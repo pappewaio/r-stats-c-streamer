@@ -24,7 +24,7 @@ se_from_zscore_beta
 se_from_zscore_N_af
 N_from_zscore_beta_af"> functiontestfile.txt
 
-# Test program
+# Try program
 cat test/testdata/linear_testStats.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 | head | column -t
 ###0             zscore_from_pval_beta  zscore_from_pval_beta_N  zscore_from_beta_se	etc..
 ###rs4819391_G   1.832718               1.834151                 1.834151	etc..
@@ -36,6 +36,23 @@ cat test/testdata/linear_testStats.txt | ./build/stat_r_in_c --functionfile func
 ```
 
 ### Test that it doesnt leak memory using valgrind
+
+To identify reserved memroy not freed and general bad memory handling we can use valgrind
+
+```
+valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose \
+cat test/testdata/linear_testStats.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 | head | column -t
+
+#If all went well, then these would be the last lines
+==35047== HEAP SUMMARY:
+==35047==     in use at exit: 0 bytes in 0 blocks
+==35047==   total heap usage: 46 allocs, 46 frees, 1,060,870 bytes allocated
+==35047== 
+==35047== All heap blocks were freed -- no leaks are possible
+==35047== 
+==35047== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+
+```
 
 ### Test that it produces same result as companion R script performing the same operations
 ```
@@ -73,9 +90,26 @@ cat rinc_testdata | ./20xx-xx-xx-ubuntu-1804_stat_r_in_c.simg stat_r_in_c --func
 
 ```
 
-### Generate 1 million rows test data using R 
+### Generate 1 000 000 rows test and timestamp the C and R versions
 ```
-./gentestdata.sh 1000000 > testdata
+# Initiate large gwas file
+cat test/testdata/linear_testStats.txt > test/testdata/testdata_100000_rows.txt
+
+# Amplify file to 1 000 000 rows
+for i in {2..1000};do
+  tail -n+2 test/testdata/linear_testStats.txt
+done >> test/testdata/testdata_100000_rows.txt
+
+time cat test/testdata/testdata_100000_rows.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 > r_version2
+###real	1m5,043s
+###user	0m6,490s
+###sys	0m55,129s
 
 
+time cat test/testdata/testdata_100000_rows.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 > c_version2
+###real	0m0,753s
+###user	0m0,610s
+###sys	0m0,087s
+
 ```
+
