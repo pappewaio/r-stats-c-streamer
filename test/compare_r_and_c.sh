@@ -22,7 +22,7 @@ paste $file1 $file2 | awk -vlim="${fc1}" 'NR>1{for (i=1; i<=(lim); i++){diff=($i
 # Count diffs for different thresholds
 echo ""
 echo "################################################################################"
-echo "The distribution of the deviations from zero were:"
+echo "The distribution of the deviations from zero:"
 cat test/out/c_r_diff | awk '
 NR>1{for (i=1; i<=NF; i++){
 if($i>0.01){seen["tol_0.01"] += 1}
@@ -37,7 +37,8 @@ END{for (i in seen) print seen[i],i}
 
 echo ""
 echo "################################################################################"
-echo "The distribution of the deviations from zero, split on columnname were:"
+echo "To investigate the distribution of the deviations from zero, when comparing the R and C version"
+echo "different difference tolerance summary metrics were calculated:"
 cat test/out/c_r_diff | awk '
 BEGIN{getline;
 for (i=1; i<=NF; i++){
@@ -60,12 +61,28 @@ print "\ntol_0.000001";for (i in seen5) print "*", seen5[i],header[i];
 print "\ntol_0.0000001";for (i in seen6) print "*", seen6[i],header[i]}
 ' 
 
+##merge input and inferred
+paste test/testdata/linear_testStats.txt test/out/c_version >  test/out/raw_c_version
+
 #Take out a random sample of rows to compare, less accurate for fewer rows
 #Will be used to generate correlation graphs
-samples_nrrows=1000
-perc="$(wc -l $file1 | awk -vsamples_nrrows=${samples_nrrows} '{print samples_nrrows/$1}')"
-cat ${file1} | awk -vperc=${perc} 'BEGIN {srand()} !/^$/ { if (rand() <= perc) print $0}' > test/out/sample_${samples_nrrows}.txt
+samples_nrrows=100
+perc="$(wc -l test/out/raw_c_version | awk -vsamples_nrrows=${samples_nrrows} '{print samples_nrrows/$1}')"
+head -n1 test/out/raw_c_version > test/out/sample_${samples_nrrows}.txt
+tail -n+2 test/out/raw_c_version | awk -vperc=${perc} 'BEGIN {srand()} !/^$/ { if (rand() <= perc) print $0}' >> test/out/sample_${samples_nrrows}.txt
 
+echo ""
+echo "################################################################################"
+echo "Correlations among inferred or true variables:"
+#test correlation among variables
+varstocorr=(Z P B SE N)
+varstocorr2=(zscore pval beta se N)
 
-
+for i in {0..4}; do
+  var=${varstocorr[i]}
+  var2=${varstocorr2[i]}
+  echo ""
+  Rscript test/calc_correlations.R test/out/sample_100.txt ${var} ${var2}
+  echo ""
+done
 
