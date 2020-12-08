@@ -55,14 +55,16 @@ cat test/testdata/linear_testStats.txt | ./build/stat_r_in_c --functionfile func
 ```
 
 ### Test that it produces same result as companion R script performing the same operations
+The primary goal here is to test if there are any values different in the C and R versions of the script, and if there are describe then using different tolerance thresholds. This is ok for most variables, but for p-values it is not enough to know that also the very low p-values are ok. Another interesting test is to correlate the different version of inference for the same variable, i.e., are all three different variants of computing the zscore giving the same result? And does it correlate against the true variable. 
 ```
 # Run equivalent R code
 cat test/testdata/linear_testStats.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 | head
 
 # Test diff of values using tolerance thresholds
-cat test/testdata/linear_testStats.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 > r_version
-cat test/testdata/linear_testStats.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 > c_version
-./test/compare_r_and_c.sh c_version r_version
+mkdir -p test/out
+cat test/testdata/linear_testStats.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 > test/out/r_version
+cat test/testdata/linear_testStats.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 > test/out/c_version
+./test/compare_r_and_c.sh test/out/c_version test/out/r_version
 ###OK: Same number of columns in both files 
 ###values with diff tolerance: 0.000001
 ###41
@@ -76,40 +78,40 @@ cat test/testdata/linear_testStats.txt | ./build/stat_r_in_c --functionfile func
 
 ```
 
+
+### Generate 1 000 000 rows test and timestamp the C and R versions
+```
+# Initiate large gwas file
+cat test/testdata/linear_testStats.txt >  test/out/testdata_100000_rows.txt
+
+# Amplify file to 1 000 000 rows
+for i in {2..1000};do
+  tail -n+2 test/testdata/linear_testStats.txt
+done >> test/out/testdata_100000_rows.txt
+
+time cat test/out/testdata_100000_rows.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 > test/out/r_version2
+###real	1m5,043s
+###user	0m6,490s
+###sys	0m55,129s
+
+
+time cat test/out/testdata_100000_rows.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 > test/out/c_version2
+###real	0m0,753s
+###user	0m0,610s
+###sys	0m0,087s
+
+```
+
 ### Build singularity image
-First make sure singularity is installed
+First make sure singularity is installed. Then if you are satisfied with the tests above you can proceed and build the image.
 
 ```
 # Make singularity image based on defintion file
 fname="$(date +%F)"-ubuntu-1804_stat_r_in_c.simg
 sudo singularity build ${fname} ubuntu-18.04_stat_r_in_c.def 
 
-
 # Check that image is executable and then test it (change date)
 cat rinc_testdata | ./20xx-xx-xx-ubuntu-1804_stat_r_in_c.simg stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 2 --oddsratio 3 --allelefreq 4 --beta 5 --standarderror 6 --Nindividuals 7 --zscore 8
-
-```
-
-### Generate 1 000 000 rows test and timestamp the C and R versions
-```
-# Initiate large gwas file
-cat test/testdata/linear_testStats.txt > test/testdata/testdata_100000_rows.txt
-
-# Amplify file to 1 000 000 rows
-for i in {2..1000};do
-  tail -n+2 test/testdata/linear_testStats.txt
-done >> test/testdata/testdata_100000_rows.txt
-
-time cat test/testdata/testdata_100000_rows.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 > r_version2
-###real	1m5,043s
-###user	0m6,490s
-###sys	0m55,129s
-
-
-time cat test/testdata/testdata_100000_rows.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 > c_version2
-###real	0m0,753s
-###user	0m0,610s
-###sys	0m0,087s
 
 ```
 
