@@ -12,7 +12,7 @@ Do this in same folder as CMakeLists.txt & source.c
 # look at test data using head.
 cat test/testdata/linear_testStats.txt | head | column -t
 
-# create file with functions to apply on each row
+# re-create the included testfile, which specifies functions to apply on each row
 echo -e "zscore_from_pval_beta
 zscore_from_pval_beta_N
 zscore_from_beta_se
