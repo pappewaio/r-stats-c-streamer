@@ -106,12 +106,15 @@ time cat test/out/testdata_100000_rows.txt | ./build/stat_r_in_c --functionfile 
 First make sure singularity is installed. Then if you are satisfied with the tests above you can proceed and build the image.
 
 ```
-# Make singularity image based on defintion file
+#Set appropriate name
 fname="$(date +%F)"-ubuntu-1804_stat_r_in_c.simg
+#remove old build 
+rm -r build
+# Make singularity image based on defintion file
 sudo singularity build ${fname} ubuntu-18.04_stat_r_in_c.def 
 
 # Check that image is executable and then test it (change date)
-cat rinc_testdata | ./20xx-xx-xx-ubuntu-1804_stat_r_in_c.simg stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 2 --oddsratio 3 --allelefreq 4 --beta 5 --standarderror 6 --Nindividuals 7 --zscore 8
+cat test/testdata/linear_testStats.txt | ./${fname} stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 2 --oddsratio 3 --allelefreq 4 --beta 5 --standarderror 6 --Nindividuals 7 --zscore 8
 
 ```
 

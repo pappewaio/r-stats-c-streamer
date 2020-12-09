@@ -20,6 +20,7 @@ From: ubuntu@sha256:bc025862c3e8ec4a8754ea4756e33da6c41cba38330d7e324abd25c8e0b9
    make
    make install
    cd /home/r-ctools
+   rm -r build
    mkdir build && cd build
    cmake ..
    make
