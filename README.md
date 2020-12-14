@@ -107,14 +107,12 @@ First make sure singularity is installed. Then if you are satisfied with the tes
 
 ```
 #Set appropriate name
-fname="$(date +%F)"-ubuntu-1804_stat_r_in_c.simg
-#remove old build 
-rm -r build
+fname="$(date +%F)"-ubuntu-2004_stat_r_in_c.simg
 # Make singularity image based on defintion file
-sudo singularity build ${fname} ubuntu-18.04_stat_r_in_c.def 
+sudo singularity build ${fname} ubuntu-20.04_stat_r_in_c.def 
 
 # Check that image is executable and then test it (change date)
-cat test/testdata/linear_testStats.txt | ./${fname} stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 2 --oddsratio 3 --allelefreq 4 --beta 5 --standarderror 6 --Nindividuals 7 --zscore 8
+cat test/testdata/linear_testStats.txt | singularity run --bind .:/mnt 2020-12-14-ubuntu-2004_stat_r_in_c.simg stat_r_in_c --functionfile  /mnt/functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7
 
 ```
 
