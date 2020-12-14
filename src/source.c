@@ -42,6 +42,7 @@ int main(int argc, char *argv[]) {
   int Nindividuals = 0;
   int zscore = 0;
   int allelefreq = 0;
+  char statmodel[256];
   char functionfile[256];
   //char *functionfile = "functiontestfile.txt";
   
@@ -61,10 +62,11 @@ int main(int argc, char *argv[]) {
         {"zscore",    required_argument, 0, 'z'},
         {"allelefreq",    required_argument, 0, 'a'},
         {"functionfile",    required_argument, 0, 'f'},
+        {"statmodel",    required_argument, 0, 'm'},
         {0, 0, 0, 0}
       };
 
-    c = getopt_long (argc, argv, "s:i:p:o:b:e:n:z:a:f:0",
+    c = getopt_long (argc, argv, "s:i:p:o:b:e:n:z:a:f:m:0",
                      long_options, &option_index);
 
     /* Detect the end of the options. */
@@ -123,6 +125,10 @@ int main(int argc, char *argv[]) {
         strcpy(functionfile, optarg); 
         break;
 
+      case 'm':
+        strcpy(statmodel, optarg); 
+        break;
+
       case '?':
         /* getopt_long already printed an error message. */
         break;
@@ -138,6 +144,19 @@ int main(int argc, char *argv[]) {
     return 1;
   }
   
+  // check that a stats model has been selected
+  if (statmodel[0] == '\0' ) {
+    fprintf(stderr, "[ERROR] No argument given for the stats method to use. Use one of lin (linear), log (logistic), linMM (linear mixed model) or logMM (logistic mixed model) \n");
+    return 1;
+  }
+  
+  // check that one of the allowed stats models has been selected
+  if (strcmp(statmodel, "lin") != 0 && strcmp(statmodel, "log") != 0 ) {
+    fprintf(stderr, "[ERROR] Wrong argument given for the stats method to use. Use one of lin (linear), log (logistic), linMM (linear mixed model) or logMM (logistic mixed model) \n");
+    return 1;
+  }
+      printf("%s\n", statmodel );
+
   // Parse file of functions if available
   FILE* file = fopen(functionfile, "r"); /* should check the result */
   char line[256];
@@ -181,7 +200,7 @@ int main(int argc, char *argv[]) {
   current = head;
   while (current != NULL) {
       //printf("%s\n", current->strvar);
-      populate_array(arrfun, current->strvar, inx);
+      populate_array(arrfun, current->strvar, inx, statmodel);
       current = current->next;
       inx++;
   }

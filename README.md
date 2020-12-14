@@ -12,7 +12,7 @@ Do this in same folder as CMakeLists.txt & source.c
 # look at test data using head.
 cat test/testdata/linear_testStats.txt | head | column -t
 
-# re-create the included testfile, which specifies functions to apply on each row
+# Re-create the included testfile, which specifies functions to apply on each row
 echo -e "zscore_from_pval_beta
 zscore_from_pval_beta_N
 zscore_from_beta_se
@@ -25,7 +25,7 @@ se_from_zscore_N_af
 N_from_zscore_beta_af"> functiontestfile.txt
 
 # Try program
-cat test/testdata/linear_testStats.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 | head | column -t
+cat test/testdata/linear_testStats.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin | head | column -t
 ###0             zscore_from_pval_beta  zscore_from_pval_beta_N  zscore_from_beta_se	etc..
 ###rs4819391_G   1.832718               1.834151                 1.834151	etc..
 ###rs11089128_G  -0.808975              -0.809215                -0.809215	etc..
@@ -41,7 +41,7 @@ To identify reserved memroy not freed and general bad memory handling we can use
 
 ```
 valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose \
-cat test/testdata/linear_testStats.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 | head | column -t
+cat test/testdata/linear_testStats.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin | head | column -t
 
 #If all went well, then these would be the last lines
 ==35047== HEAP SUMMARY:
@@ -58,11 +58,11 @@ cat test/testdata/linear_testStats.txt | ./build/stat_r_in_c --functionfile func
 The primary goal here is to test if there are any values different in the C and R versions of the script, and if there are describe then using different tolerance thresholds. This is ok for most variables, but for p-values it is not enough to know that also the very low p-values are ok. Another interesting test is to correlate the different version of inference for the same variable, i.e., are all three different variants of computing the zscore giving the same result? And does it correlate against the true variable. 
 ```
 # Run equivalent R code
-cat test/testdata/linear_testStats.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 | head
+cat test/testdata/linear_testStats.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7  --statmodel lin| head
 
 # Test diff of values using tolerance thresholds
 mkdir -p test/out
-cat test/testdata/linear_testStats.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 > test/out/r_version
+cat test/testdata/linear_testStats.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7  --statmodel lin> test/out/r_version
 cat test/testdata/linear_testStats.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 > test/out/c_version
 ./test/compare_r_and_c.sh test/out/c_version test/out/r_version
 ###OK: Same number of columns in both files 
@@ -89,13 +89,13 @@ for i in {2..1000};do
   tail -n+2 test/testdata/linear_testStats.txt
 done >> test/out/testdata_100000_rows.txt
 
-time cat test/out/testdata_100000_rows.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 > test/out/r_version2
+time cat test/out/testdata_100000_rows.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin > test/out/r_version2
 ###real	1m5,043s
 ###user	0m6,490s
 ###sys	0m55,129s
 
 
-time cat test/out/testdata_100000_rows.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 > test/out/c_version2
+time cat test/out/testdata_100000_rows.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin > test/out/c_version2
 ###real	0m0,753s
 ###user	0m0,610s
 ###sys	0m0,087s
@@ -112,7 +112,7 @@ fname="$(date +%F)"-ubuntu-2004_stat_r_in_c.simg
 sudo singularity build ${fname} ubuntu-20.04_stat_r_in_c.def 
 
 # Check that image is executable and then test it (change date)
-cat test/testdata/linear_testStats.txt | singularity run --bind .:/mnt 2020-12-14-ubuntu-2004_stat_r_in_c.simg stat_r_in_c --functionfile  /mnt/functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7
+cat test/testdata/linear_testStats.txt | singularity run --bind .:/mnt 2020-12-14-ubuntu-2004_stat_r_in_c.simg stat_r_in_c --functionfile  /mnt/functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin | head | column -t
 
 ```
 
