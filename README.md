@@ -9,7 +9,10 @@ Do this in same folder as CMakeLists.txt & source.c
 # Build project (it will remove old build folders)
 ./build.sh
 
-# look at test data using head.
+# Check the current version
+./build/r-stats-c-streamer --version
+
+# Look at test data using head.
 cat test/testdata/linear_testStats.txt | head | column -t
 
 # Re-create the included testfile, which specifies functions to apply on each row
@@ -37,7 +40,7 @@ cat test/testdata/linear_testStats.txt | ./build/r-stats-c-streamer --functionfi
 
 ### Test that it doesnt leak memory using valgrind
 
-To identify reserved memroy not freed and general bad memory handling we can use valgrind
+To identify reserved memroy not freed and general bad memory handling we can use valgrind (which you have to install)
 
 ```
 valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose \

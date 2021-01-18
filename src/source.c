@@ -52,6 +52,7 @@ int main(int argc, char *argv[]) {
     int option_index = 0;
     static struct option long_options[] =
       {
+        {"version",  no_argument, 0, 'v'},
         {"skiplines",  required_argument, 0, 's'},
         {"index",  required_argument, 0, 'i'},
         {"pvalue",  required_argument, 0, 'p'},
@@ -84,6 +85,10 @@ int main(int argc, char *argv[]) {
           printf (" with arg %s", optarg);
         printf ("\n");
         break;
+
+      case 'v':
+	printf("r-stats-c-stremer 1.0.0\n");
+        return(0);
 
       case 's':
         skiplines = atoi(optarg);
