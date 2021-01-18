@@ -25,7 +25,7 @@ se_from_zscore_N_af
 N_from_zscore_beta_af"> functiontestfile.txt
 
 # Try program
-cat test/testdata/linear_testStats.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin | head | column -t
+cat test/testdata/linear_testStats.txt | ./build/r-stats-c-streamer --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin | head | column -t
 ###0             zscore_from_pval_beta  zscore_from_pval_beta_N  zscore_from_beta_se	etc..
 ###rs4819391_G   1.832718               1.834151                 1.834151	etc..
 ###rs11089128_G  -0.808975              -0.809215                -0.809215	etc..
@@ -41,7 +41,7 @@ To identify reserved memroy not freed and general bad memory handling we can use
 
 ```
 valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose \
-cat test/testdata/linear_testStats.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin | head | column -t
+cat test/testdata/linear_testStats.txt | ./build/r-stats-c-streamer --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin | head | column -t
 
 #If all went well, then these would be the last lines
 ==35047== HEAP SUMMARY:
@@ -63,7 +63,7 @@ cat test/testdata/linear_testStats.txt | Rscript test/calc_linear_functions.R --
 # Test diff of values using tolerance thresholds
 mkdir -p test/out
 cat test/testdata/linear_testStats.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7  --statmodel lin> test/out/r_version
-cat test/testdata/linear_testStats.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 > test/out/c_version
+cat test/testdata/linear_testStats.txt | ./build/r-stats-c-streamer --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 > test/out/c_version
 ./test/compare_r_and_c.sh test/out/c_version test/out/r_version
 ###OK: Same number of columns in both files 
 ###values with diff tolerance: 0.000001
@@ -95,7 +95,7 @@ time cat test/out/testdata_100000_rows.txt | Rscript test/calc_linear_functions.
 ###sys	0m55,129s
 
 
-time cat test/out/testdata_100000_rows.txt | ./build/stat_r_in_c --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin > test/out/c_version2
+time cat test/out/testdata_100000_rows.txt | ./build/r-stats-c-streamer --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin > test/out/c_version2
 ###real	0m0,753s
 ###user	0m0,610s
 ###sys	0m0,087s
@@ -103,16 +103,16 @@ time cat test/out/testdata_100000_rows.txt | ./build/stat_r_in_c --functionfile 
 ```
 
 ### Build singularity image
-First make sure singularity is installed. Then if you are satisfied with the tests above you can proceed and build the image.
+First make sure singularity is installed. Then if you are satisfied with the tests above you can proceed and build the image, which will make it possible to directly run on for example a high-performance cluster without admin privileges. 
 
 ```
-#Set appropriate name
-fname="$(date +%F)"-ubuntu-2004_stat_r_in_c.simg
 # Make singularity image based on defintion file
-sudo singularity build ${fname} ubuntu-20.04_stat_r_in_c.def 
+mkdir -p images
+fname="$(date +%F)"-ubuntu-2004_r-stats-c-streamer.simg
+sudo singularity build images/${fname} ubuntu-20.04_r-stats-c-streamer.def 
 
 # Check that image is executable and then test it (change date)
-cat test/testdata/linear_testStats.txt | singularity run --bind .:/mnt 2020-12-14-ubuntu-2004_stat_r_in_c.simg stat_r_in_c --functionfile  /mnt/functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin | head | column -t
+cat test/testdata/linear_testStats.txt | singularity run --bind .:/mnt images/2020-12-14-ubuntu-2004_r-stats-c-streamer.simg r-stats-c-streamer --functionfile  /mnt/functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin | head | column -t
 
 ```
 
