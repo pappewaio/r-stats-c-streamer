@@ -20,8 +20,6 @@ void *populate_array(int (**p)(char**, int*), char *operator_inname, int inx, ch
   if(strcmp(statmodel, "lin") == 0 ){
     if (strcmp(operator_inname, "qnorm") == 0) {
       p[inx] = lin_operator_qnorm;
-    } else if (strcmp(operator_inname, "zscore_from_pval_oddsratio") == 0) {
-      p[inx] = lin_operator_zscore_from_pval_oddsratio;
     } else if (strcmp(operator_inname, "zscore_from_pval_beta") == 0) {
       p[inx] = lin_operator_zscore_from_pval_beta;
     } else if (strcmp(operator_inname, "zscore_from_pval_beta_N") == 0) {
@@ -45,6 +43,13 @@ void *populate_array(int (**p)(char**, int*), char *operator_inname, int inx, ch
     } else {
       fprintf(stderr, "[ERROR] Unknown function: %s", operator_inname);
     }
+  } else if(strcmp(statmodel, "log") == 0 ){
+    if (strcmp(operator_inname, "zscore_from_pval_oddsratio") == 0) {
+      p[inx] = log_operator_zscore_from_pval_oddsratio;
+    } else {
+      fprintf(stderr, "[ERROR] Unknown function: %s", operator_inname);
+    }
+
   }
 
   return p;
@@ -105,7 +110,7 @@ int lin_operator_zscore_from_beta_se(char **arrayvals, int arraypositions[]) {
   Need to fill in details here
   Need to fill in details here
 */
-int lin_operator_zscore_from_pval_oddsratio(char **arrayvals, int arraypositions[]) {
+int log_operator_zscore_from_pval_oddsratio(char **arrayvals, int arraypositions[]) {
   double or = strtod(arrayvals[arraypositions[1]], NULL);
   double prob = strtod(arrayvals[arraypositions[0]], NULL);
 

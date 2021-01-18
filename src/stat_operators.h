@@ -16,9 +16,9 @@ int lin_operator_qnorm(char **arrayvals, int arraypositions[]);
 
 //Zscore 
 int lin_operator_zscore_from_beta_se(char **arrayvals, int arraypositions[]);
-int lin_operator_zscore_from_pval_oddsratio(char **arrayvals, int arraypositions[]);
 int lin_operator_zscore_from_pval_beta(char **arrayvals, int arraypositions[]);
 int lin_operator_zscore_from_pval_beta_N(char **arrayvals, int arraypositions[]);
+int log_operator_zscore_from_pval_oddsratio(char **arrayvals, int arraypositions[]);
 
 //Pvalue
 int lin_operator_pval_from_zscore_N(char **arrayvals, int arraypositions[]);

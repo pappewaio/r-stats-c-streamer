@@ -155,7 +155,6 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "[ERROR] Wrong argument given for the stats method to use. Use one of lin (linear), log (logistic), linMM (linear mixed model) or logMM (logistic mixed model) \n");
     return 1;
   }
-      printf("%s\n", statmodel );
 
   // Parse file of functions if available
   FILE* file = fopen(functionfile, "r"); /* should check the result */
