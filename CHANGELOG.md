@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Released]
 
+## [1.0.2] - 2021-01-20
+### Changed
+
+- changed file name for the singularity definition file from an older name of the software
+
+
 ## [1.0.1] - 2021-01-20
 ### Added
 
