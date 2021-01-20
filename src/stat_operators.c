@@ -14,7 +14,7 @@ STATISTICS functions section
 Check if operator is available
 ******************************/
 
-void *populate_array(int (**p)(char**, int*), char *operator_inname, int inx, char *statmodel) {
+void *populate_array(int (**p)(char**, int*, int*), char *operator_inname, int inx, char *statmodel) {
 
   // Declare the different functions we can use as operators
   if(strcmp(statmodel, "lin") == 0 ){
@@ -61,7 +61,7 @@ Compute per-SNP default Rmath R functions
 ******************************/
 
 //Compute qnorm directly from the Rmath library
-int lin_operator_qnorm(char **arrayvals, int arraypositions[]) {
+int lin_operator_qnorm(char **arrayvals, int arraypositions[], int valmodifier[]) {
   //take out element 1 which should be the pvalue
   double prob = strtod(arrayvals[arraypositions[0]], NULL);
 
@@ -89,7 +89,7 @@ Compute per-SNP test statistics
 /* 
   Use the Beta and standard error to convert Beta/SE -> t
 */
-int lin_operator_zscore_from_beta_se(char **arrayvals, int arraypositions[]) {
+int lin_operator_zscore_from_beta_se(char **arrayvals, int arraypositions[], int valmodifier[]) {
   double beta = strtod(arrayvals[arraypositions[2]], NULL);
   double stderror = strtod(arrayvals[arraypositions[3]], NULL);
 
@@ -110,7 +110,7 @@ int lin_operator_zscore_from_beta_se(char **arrayvals, int arraypositions[]) {
   Need to fill in details here
   Need to fill in details here
 */
-int log_operator_zscore_from_pval_oddsratio(char **arrayvals, int arraypositions[]) {
+int log_operator_zscore_from_pval_oddsratio(char **arrayvals, int arraypositions[], int valmodifier[]) {
   double or = strtod(arrayvals[arraypositions[1]], NULL);
   double prob = strtod(arrayvals[arraypositions[0]], NULL);
 
@@ -135,7 +135,7 @@ int log_operator_zscore_from_pval_oddsratio(char **arrayvals, int arraypositions
   Does not account estimated variance of beta
   Shrunken towards 0 relative to truth as a function of absolute magnitude of truth 
 */
-int lin_operator_zscore_from_pval_beta(char **arrayvals, int arraypositions[]) {
+int lin_operator_zscore_from_pval_beta(char **arrayvals, int arraypositions[], int valmodifier[]) {
   double prob = strtod(arrayvals[arraypositions[0]], NULL);
   double beta = strtod(arrayvals[arraypositions[2]], NULL);
   //long double beta = strtold(arrayvals[arraypositions[2]], NULL);
@@ -161,7 +161,7 @@ int lin_operator_zscore_from_pval_beta(char **arrayvals, int arraypositions[]) {
   Use the N (must be per SNP N reported in sumstats file ) to convert P -> t
   Does not account for loss of degrees of freedom due to covariates
 */
-int lin_operator_zscore_from_pval_beta_N(char **arrayvals, int arraypositions[]) {
+int lin_operator_zscore_from_pval_beta_N(char **arrayvals, int arraypositions[], int valmodifier[]) {
   double Nindividuals = strtod(arrayvals[arraypositions[4]], NULL);
   double prob = strtod(arrayvals[arraypositions[0]], NULL);
   double beta = strtod(arrayvals[arraypositions[2]], NULL);
@@ -189,7 +189,7 @@ Compute per-SNP P-values
   Use the test statistics and the sample size to reference the t-distribution
   Does not account for degrees of freedom lost to covariates in variance estimation
 */
-int lin_operator_pval_from_zscore_N(char **arrayvals, int arraypositions[]) {
+int lin_operator_pval_from_zscore_N(char **arrayvals, int arraypositions[], int valmodifier[]) {
   double Nindividuals = strtod(arrayvals[arraypositions[4]], NULL);
   double zscore = strtod(arrayvals[arraypositions[5]], NULL);
 
@@ -212,7 +212,7 @@ int lin_operator_pval_from_zscore_N(char **arrayvals, int arraypositions[]) {
   Ignores that SE uses sample variance
   bigger errors that might result from floating point storage? seem to peak around 0.1?
 */
-int lin_operator_pval_from_zscore(char **arrayvals, int arraypositions[]) {
+int lin_operator_pval_from_zscore(char **arrayvals, int arraypositions[], int valmodifier[]) {
   double zscore = strtod(arrayvals[arraypositions[5]], NULL);
 
   if (errno != 0) {
@@ -232,7 +232,7 @@ int lin_operator_pval_from_zscore(char **arrayvals, int arraypositions[]) {
 /* 
    Use the test statistics and the estimated SE to infer effect size
 */
-int lin_operator_beta_from_zscore_se(char **arrayvals, int arraypositions[]) {
+int lin_operator_beta_from_zscore_se(char **arrayvals, int arraypositions[], int valmodifier[]) {
   double stderror = strtod(arrayvals[arraypositions[3]], NULL);
   double zscore = strtod(arrayvals[arraypositions[5]], NULL);
 
@@ -256,10 +256,15 @@ int lin_operator_beta_from_zscore_se(char **arrayvals, int arraypositions[]) {
    Citation: Supplement of https://www.nature.com/articles/ng.3538
    Note: Ignores covariate effects and adjustment for degrees of freedom from estimation
 */
-int lin_operator_beta_from_zscore_N_af(char **arrayvals, int arraypositions[]) {
+int lin_operator_beta_from_zscore_N_af(char **arrayvals, int arraypositions[], int valmodifier[]) {
   double zscore = strtod(arrayvals[arraypositions[5]], NULL);
   long double Nindividuals = strtod(arrayvals[arraypositions[4]], NULL);
+  //if alleleswitchflag is not set, then reverse allele freq to convert from eaf to oaf
+  //Although for this formula it doesnt seem to matter
   double af = strtod(arrayvals[arraypositions[6]], NULL);
+  if (valmodifier[0] == 1) {
+    af = 1-af;
+  }
 
   if (errno != 0) {
     perror("[ERROR] Failed to parse floating point number");
@@ -278,7 +283,7 @@ int lin_operator_beta_from_zscore_N_af(char **arrayvals, int arraypositions[]) {
 /* 
  * Use the test statistics and the estimated effects to infer SE
 */
-int lin_operator_se_from_zscore_beta(char **arrayvals, int arraypositions[]) {
+int lin_operator_se_from_zscore_beta(char **arrayvals, int arraypositions[], int valmodifier[]) {
   double zscore = strtod(arrayvals[arraypositions[5]], NULL);
   double beta = strtod(arrayvals[arraypositions[2]], NULL);
 
@@ -303,10 +308,16 @@ int lin_operator_se_from_zscore_beta(char **arrayvals, int arraypositions[]) {
   Shows upward bias in test data.
   Citation: Supplement of https://www.nature.com/articles/ng.3538
 */
-int lin_operator_se_from_zscore_N_af(char **arrayvals, int arraypositions[]) {
+int lin_operator_se_from_zscore_N_af(char **arrayvals, int arraypositions[], int valmodifier[]) {
   double zscore = strtod(arrayvals[arraypositions[5]], NULL);
   double Nindividuals = strtod(arrayvals[arraypositions[4]], NULL);
   double allelefreq = strtod(arrayvals[arraypositions[6]], NULL);
+  //if alleleswitchflag is not set, then reverse allele freq to convert from eaf to oaf
+  //Although for this formula it doesnt seem to matter
+  double af = strtod(arrayvals[arraypositions[6]], NULL);
+  if (valmodifier[0] == 1) {
+    af = 1-af;
+  }
 
   if (errno != 0) {
     perror("[ERROR] Failed to parse floating point number");
@@ -315,7 +326,7 @@ int lin_operator_se_from_zscore_N_af(char **arrayvals, int arraypositions[]) {
     return 1;
   }
 
-  printf("%lf", 1/sqrt(2*allelefreq*(1-allelefreq)*(Nindividuals+zscore*zscore)) );
+  printf("%lf", 1/sqrt(2*af*(1-af)*(Nindividuals+zscore*zscore)) );
 
   return 0;
 }
@@ -327,10 +338,15 @@ int lin_operator_se_from_zscore_N_af(char **arrayvals, int arraypositions[]) {
    1) Assumption that var(SNP) = 2p(1-p) / e.g., HWE not true, SNPs standardized, reference p not good
  Shows upward bias in test data.
 */
-int lin_operator_N_from_zscore_beta_af(char **arrayvals, int arraypositions[]) {
+int lin_operator_N_from_zscore_beta_af(char **arrayvals, int arraypositions[], int valmodifier[]) {
   double zscore = strtod(arrayvals[arraypositions[5]], NULL);
   double beta = strtod(arrayvals[arraypositions[2]], NULL);
-  double allelefreq = strtod(arrayvals[arraypositions[6]], NULL);
+  //if alleleswitchflag is not set, then reverse allele freq to convert from eaf to oaf
+  //Although for this formula it doesnt seem to matter
+  double af = strtod(arrayvals[arraypositions[6]], NULL);
+  if (valmodifier[0] == 1) {
+    af = 1-af;
+  }
 
   if (errno != 0) {
     perror("[ERROR] Failed to parse floating point number");
@@ -339,7 +355,7 @@ int lin_operator_N_from_zscore_beta_af(char **arrayvals, int arraypositions[]) {
     return 1;
   }
 
-  printf("%lf", ((zscore*zscore)/(2*allelefreq*(1-allelefreq)*beta*beta)) - zscore*zscore );
+  printf("%lf", ((zscore*zscore)/(2*af*(1-af)*beta*beta)) - zscore*zscore );
 
   return 0;
 }

@@ -42,6 +42,7 @@ int main(int argc, char *argv[]) {
   int Nindividuals = 0;
   int zscore = 0;
   int allelefreq = 0;
+  int allelefreqswitch = 0;
   char statmodel[256];
   char functionfile[256];
   //char *functionfile = "functiontestfile.txt";
@@ -62,12 +63,13 @@ int main(int argc, char *argv[]) {
         {"Nindividuals",    required_argument, 0, 'n'},
         {"zscore",    required_argument, 0, 'z'},
         {"allelefreq",    required_argument, 0, 'a'},
+        {"allelefreqswitch",    no_argument, 0, 'w'},
         {"functionfile",    required_argument, 0, 'f'},
         {"statmodel",    required_argument, 0, 'm'},
         {0, 0, 0, 0}
       };
 
-    c = getopt_long (argc, argv, "s:i:p:o:b:e:n:z:a:f:m:0",
+    c = getopt_long (argc, argv, "vws:i:p:o:b:e:n:z:a:f:m:0",
                      long_options, &option_index);
 
     /* Detect the end of the options. */
@@ -124,6 +126,10 @@ int main(int argc, char *argv[]) {
 
       case 'a':
         allelefreq = atoi(optarg) -1; 
+        break;
+
+      case 'w':
+        allelefreqswitch = 1;
         break;
 
       case 'f':
@@ -198,7 +204,7 @@ int main(int argc, char *argv[]) {
   fclose(file);
 
   //store in arrfun from our list
-  int (*arrfun[funlen])(char**, int*);
+  int (*arrfun[funlen])(char**, int*, int*);
 
   int inx = 0;
   current = head;
@@ -228,6 +234,10 @@ int main(int argc, char *argv[]) {
   if (Nindividuals != 0) { argcolvals[4] = Nindividuals;}
   if (zscore != 0) { argcolvals[5] = zscore;}
   if (allelefreq != 0) { argcolvals[6] = allelefreq;}
+  
+  // Add one more that will be 0 or 1
+  int valmodifier[1] = {0};
+  valmodifier[0] = allelefreqswitch;
 
   // return value if this function has no errors
   int return_value = 0;
@@ -318,10 +328,10 @@ int main(int argc, char *argv[]) {
   int j;
   for (j = 0; j < funlen; j++){
     if (j == 0 && indexcolumn == 0) {
-      (*arrfun[j]) (arr, argcolvals);
+      (*arrfun[j]) (arr, argcolvals, valmodifier);
     }else{
       printf("\t");
-      (*arrfun[j]) (arr, argcolvals);
+      (*arrfun[j]) (arr, argcolvals, valmodifier);
     }
   }
   printf("\n");
@@ -358,10 +368,10 @@ int main(int argc, char *argv[]) {
     // use user specified operators for the remaining rows
     for (j = 0; j < funlen; j++){
       if (j == 0 && indexcolumn == 0) {
-        (*arrfun[j]) (arr, argcolvals);
+        (*arrfun[j]) (arr, argcolvals, valmodifier);
       }else{
         printf("\t");
-        (*arrfun[j]) (arr, argcolvals);
+        (*arrfun[j]) (arr, argcolvals, valmodifier);
       }
     }
     printf("\n");

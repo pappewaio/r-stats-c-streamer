@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Released]
 
+## [1.0.1] - 2021-01-20
+### Added
+
+- Switch for allele frequency, if the incoming is other allele (default) or effect allele (use the --allelefreqswitch). Apparently it did not have any visible effect on the values at a first glance, but the switch will be in use for future formulas and if there actually are real differences for the present formulas.
+
+
 ## [1.0.0] - 2021-01-18
 ### Added
 
