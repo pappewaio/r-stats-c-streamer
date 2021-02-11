@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Released]
 
+## [1.0.3] - 2021-02-11
+### Changed
+
+- changed permission so that build.sh is executable without having to first chmod
+
+### Added
+
+- Swtich for -logP, which converts the P-value to a normal P-value before further calculations
+
 ## [1.0.2] - 2021-01-20
 ### Changed
 
