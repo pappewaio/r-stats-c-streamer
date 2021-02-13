@@ -74,6 +74,7 @@ cat test/testdata/linear_testStats.txt | ./build/r-stats-c-streamer --functionfi
 The primary goal here is to test if there are any values different in the C and R versions of the script, and if there are describe then using different tolerance thresholds. This is ok for most variables, but for p-values it is not enough to know that also the very low p-values are ok. Another interesting test is to correlate the different version of inference for the same variable, i.e., are all three different variants of computing the zscore giving the same result? And does it correlate against the true variable. 
 ```
 # Run equivalent R code
+# needs packages: getopt
 cat test/testdata/linear_testStats.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7  --statmodel lin| head
 
 # Test diff of values using tolerance thresholds
@@ -91,6 +92,8 @@ cat test/testdata/linear_testStats.txt | ./build/r-stats-c-streamer --functionfi
 ###values with diff tolerance: 0.001
 ###0
 
+#test neglog10p flag
+cat test/testdata/linear_testStats_neglog10Pvalue.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7  --statmodel lin --neglog10p | head
 
 ```
 
