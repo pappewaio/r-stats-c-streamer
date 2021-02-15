@@ -121,6 +121,10 @@ int log_operator_zscore_from_pval_oddsratio(char **arrayvals, int arraypositions
     return 1;
   }
 
+  if (valmodifier[1] == 1) {
+    prob = pow(10, -prob);
+  }
+
   //sign funciton to get -1,0,1
   int sign = (log(or) > 0) - (log(or) < 0);
   printf("%lf", sign*fabs(qnorm(prob, 0.0, 1.0, 1, 0)));
@@ -149,6 +153,10 @@ int lin_operator_zscore_from_pval_beta(char **arrayvals, int arraypositions[], i
     return 1;
   }
 
+  if (valmodifier[1] == 1) {
+    prob = pow(10, -prob);
+  }
+
   //sign funciton to get -1,0,1
   int sign = (beta > 0) - (beta < 0);
   printf("%lf", sign*fabs(qnorm(prob/2, 0.0, 1.0, 1, 0)));
@@ -171,6 +179,10 @@ int lin_operator_zscore_from_pval_beta_N(char **arrayvals, int arraypositions[],
     errno = 0;
 
     return 1;
+  }
+
+  if (valmodifier[1] == 1) {
+    prob = pow(10, -prob);
   }
 
   //sign funciton to get -1,0,1

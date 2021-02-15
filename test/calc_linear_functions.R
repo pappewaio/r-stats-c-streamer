@@ -14,13 +14,16 @@ spec = matrix(c(
 'skiplines', 's', 2, "integer",
 'index' , 'i', 2, "integer",
 'pvalue' , 'p', 2, "integer",
+'neglog10p' ,'l', 0 , "logical",
 'oddsratio' , 'o', 2, "integer",
 'beta' , 'b', 2, "integer",
 'standarderror' , 'e', 2, "integer",
 'Nindividuals' , 'n', 2, "integer",
 'zscore' , 'z', 2, "integer",
 'allelefreq' , 'a', 2, "integer",
+'allelefreqswitch', 'w', 0, "logical",
 'functionfile' , 'f', 2, "character",
+'statmodel' , 'm', 2, "character",
 'help' , 'h', 0, "logical"
 ), byrow=TRUE, ncol=4)
 
@@ -54,6 +57,12 @@ if(!is.null(opt$Nindividuals)){argcolvals[5] <- opt$Nindividuals}
 if(!is.null(opt$zscore)){argcolvals[6] <- opt$zscore}
 if(!is.null(opt$allelefreq)){argcolvals[7] <- opt$allelefreq}
 
+# Add run specific logicals
+valmodifier <- rep(NA, length=2)
+if(!is.null(opt$allelefreqswitch)){valmodifier[1] <- 1}else{valmodifier[1] <- 0}
+if(!is.null(opt$neglog10p)){valmodifier[2] <- 1}else{valmodifier[2] <- 0}
+
+
 #source functions (by first setting workdirectory to same as where the main script was called from)
 source(file.path(script.basename,"functions.R"))
 
@@ -86,14 +95,14 @@ while(length(line <- readLines(f,n=1)) > 0) {
  #use index if present and print output of first func
  if (!is.null(opt$index)) { 
    cat(arr[opt$index],"\t")
-   do.call(funcs[1], list(arr=arr,inxs=argcolvals)) 
+   do.call(funcs[1], list(arr=arr,inxs=argcolvals, mods=valmodifier)) 
  }else{
-   do.call(funcs[1], list(arr=arr,inxs=argcolvals)) 
+   do.call(funcs[1], list(arr=arr,inxs=argcolvals, mods=valmodifier)) 
  }
   #for remaining funcs
   for (func in funcs[2:length(funcs)]){
     cat("\t")
-    do.call(func, list(arr=arr,inxs=argcolvals)) 
+    do.call(func, list(arr=arr,inxs=argcolvals, mods=valmodifier)) 
   }
   cat("\n")
 }

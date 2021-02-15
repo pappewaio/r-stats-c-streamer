@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
   int skiplines = 0;
   int indexcolumn = 0;
   int pvalue = 0;
+  int neglog10p = 0;
   int oddsratio = 0;
   int beta = 0;
   int standarderror = 0;
@@ -57,6 +58,7 @@ int main(int argc, char *argv[]) {
         {"skiplines",  required_argument, 0, 's'},
         {"index",  required_argument, 0, 'i'},
         {"pvalue",  required_argument, 0, 'p'},
+        {"neglog10p",    no_argument, 0, 'l'},
         {"oddsratio",    required_argument, 0, 'o'},
         {"beta",    required_argument, 0, 'b'},
         {"standarderror",    required_argument, 0, 'e'},
@@ -69,7 +71,7 @@ int main(int argc, char *argv[]) {
         {0, 0, 0, 0}
       };
 
-    c = getopt_long (argc, argv, "vws:i:p:o:b:e:n:z:a:f:m:0",
+    c = getopt_long (argc, argv, "vlws:i:p:o:b:e:n:z:a:f:m:0",
                      long_options, &option_index);
 
     /* Detect the end of the options. */
@@ -89,7 +91,7 @@ int main(int argc, char *argv[]) {
         break;
 
       case 'v':
-	printf("r-stats-c-stremer 1.0.0\n");
+	printf("r-stats-c-stremer 1.0.3\n");
         return(0);
 
       case 's':
@@ -130,6 +132,10 @@ int main(int argc, char *argv[]) {
 
       case 'w':
         allelefreqswitch = 1;
+        break;
+
+      case 'l':
+        neglog10p = 1;
         break;
 
       case 'f':
@@ -236,8 +242,9 @@ int main(int argc, char *argv[]) {
   if (allelefreq != 0) { argcolvals[6] = allelefreq;}
   
   // Add one more that will be 0 or 1
-  int valmodifier[1] = {0};
+  int valmodifier[2] = {0};
   valmodifier[0] = allelefreqswitch;
+  valmodifier[1] = neglog10p;
 
   // return value if this function has no errors
   int return_value = 0;

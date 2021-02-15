@@ -36,7 +36,20 @@ cat test/testdata/linear_testStats.txt | ./build/r-stats-c-streamer --functionfi
 ###rs2032141_A   2.068237               2.070195                 2.070195	etc..
 ###etc...
 
+
+# If the P-value uses -log10, apply the neglog10 flag
+cat test/testdata/linear_testStats_neglog10Pvalue.txt | ./build/r-stats-c-streamer --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin --neglog10p | head | column -t
+###0             zscore_from_pval_beta  zscore_from_pval_beta_N  zscore_from_beta_se	etc..
+###rs4819391_G   1.832718               1.834151                 1.834151             
+###rs11089128_G  -0.808975              -0.809215                -0.809215            
+###rs7288972_C   -1.075487              -1.075903                -1.075903            
+###rs2032141_A   2.068237               2.070195                 2.070195             
+###etc...
+
 ```
+
+As you can see the column names describees the operation performed, and using the `--neglog10` flag we get the same result as if we would have a "normal" P-value. There are some decimals that are off in this example, but that is because the test set with -log(Pvalue) is slightly truncated. In a future version the test set will contain a not truncated value.
+
 
 ### Test that it doesnt leak memory using valgrind
 
@@ -61,6 +74,7 @@ cat test/testdata/linear_testStats.txt | ./build/r-stats-c-streamer --functionfi
 The primary goal here is to test if there are any values different in the C and R versions of the script, and if there are describe then using different tolerance thresholds. This is ok for most variables, but for p-values it is not enough to know that also the very low p-values are ok. Another interesting test is to correlate the different version of inference for the same variable, i.e., are all three different variants of computing the zscore giving the same result? And does it correlate against the true variable. 
 ```
 # Run equivalent R code
+# needs packages: getopt
 cat test/testdata/linear_testStats.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7  --statmodel lin| head
 
 # Test diff of values using tolerance thresholds
@@ -78,6 +92,8 @@ cat test/testdata/linear_testStats.txt | ./build/r-stats-c-streamer --functionfi
 ###values with diff tolerance: 0.001
 ###0
 
+#test neglog10p flag
+cat test/testdata/linear_testStats_neglog10Pvalue.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7  --statmodel lin --neglog10p | head
 
 ```
 
@@ -118,4 +134,5 @@ sudo singularity build images/${fname} ubuntu-20.04_r-stats-c-streamer.def
 cat test/testdata/linear_testStats.txt | singularity run --bind .:/mnt images/2020-12-14-ubuntu-2004_r-stats-c-streamer.simg r-stats-c-streamer --functionfile  /mnt/functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin | head | column -t
 
 ```
+
 
