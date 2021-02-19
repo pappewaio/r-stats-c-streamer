@@ -53,7 +53,7 @@ As you can see the column names describees the operation performed, and using th
 
 ### Test that it doesnt leak memory using valgrind
 
-To identify reserved memroy not freed and general bad memory handling we can use valgrind (which you have to install)
+To identify reserved memory not freed and general bad memory handling we can use valgrind (which you have to install)
 
 ```
 valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose \
