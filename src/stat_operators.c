@@ -50,6 +50,13 @@ void *populate_array(int (**p)(char**, int*, int*), char *operator_inname, int i
       fprintf(stderr, "[ERROR] Unknown function: %s", operator_inname);
     }
 
+  } else if(strcmp(statmodel, "none") == 0 ){
+    if (strcmp(operator_inname, "pval_from_neglog10p") == 0) {
+      p[inx] = none_pval_from_neglog10p;
+    } else {
+      fprintf(stderr, "[ERROR] Unknown function: %s", operator_inname);
+    }
+
   }
 
   return p;
@@ -59,6 +66,26 @@ void *populate_array(int (**p)(char**, int*, int*), char *operator_inname, int i
 /******************************
 Compute per-SNP default Rmath R functions
 ******************************/
+
+//Compute qnorm directly from the Rmath library
+int none_pval_from_neglog10p(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  //take out element 1 which should be the pvalue
+  double prob = strtod(arrayvals[arraypositions[0]], NULL);
+
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse floating point number");
+    errno = 0;
+    return 1;
+  } else if (prob == 0.0) {
+    fprintf(stderr, "[ERROR] Given line was not a floating point number: %s", arrayvals[arraypositions[0]]);
+    return 1;
+  }
+
+  printf("%lf", pow(10, -prob));
+
+  return 0;
+}
+
 
 //Compute qnorm directly from the Rmath library
 int lin_operator_qnorm(char **arrayvals, int arraypositions[], int valmodifier[]) {

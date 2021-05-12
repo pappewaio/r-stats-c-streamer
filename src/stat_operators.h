@@ -13,6 +13,8 @@ void *populate_array(int (**p)(char**, int*, int*), char *operator_inname, int i
 
 //basic R
 int lin_operator_qnorm(char **arrayvals, int arraypositions[], int valmodifier[]);
+int none_pval_from_neglog10p(char **arrayvals, int arraypositions[], int valmodifier[]);
+
 
 //Zscore 
 int lin_operator_zscore_from_beta_se(char **arrayvals, int arraypositions[], int valmodifier[]);

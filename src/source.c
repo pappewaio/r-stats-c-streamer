@@ -46,6 +46,7 @@ int main(int argc, char *argv[]) {
   int allelefreqswitch = 0;
   char statmodel[256];
   char functionfile[256];
+  int replace = 0;
   //char *functionfile = "functiontestfile.txt";
   
   while (1)
@@ -68,6 +69,7 @@ int main(int argc, char *argv[]) {
         {"allelefreqswitch",    no_argument, 0, 'w'},
         {"functionfile",    required_argument, 0, 'f'},
         {"statmodel",    required_argument, 0, 'm'},
+        {"replace",    required_argument, 0, 'r'},
         {0, 0, 0, 0}
       };
 
@@ -146,6 +148,10 @@ int main(int argc, char *argv[]) {
         strcpy(statmodel, optarg); 
         break;
 
+      case 'r':
+        replace = atoi(optarg) -1; 
+        break;
+
       case '?':
         /* getopt_long already printed an error message. */
         break;
@@ -168,8 +174,8 @@ int main(int argc, char *argv[]) {
   }
   
   // check that one of the allowed stats models has been selected
-  if (strcmp(statmodel, "lin") != 0 && strcmp(statmodel, "log") != 0 ) {
-    fprintf(stderr, "[ERROR] Wrong argument given for the stats method to use. Use one of lin (linear), log (logistic), linMM (linear mixed model) or logMM (logistic mixed model) \n");
+  if (strcmp(statmodel, "lin") != 0 && strcmp(statmodel, "log") != 0 && strcmp(statmodel, "none") != 0) {
+    fprintf(stderr, "[ERROR] Wrong argument given for the stats method to use. Use one of lin (linear), log (logistic) or none if the calculation is independent of statmodel \n");
     return 1;
   }
 
@@ -252,35 +258,43 @@ int main(int argc, char *argv[]) {
   // Skip header rows for calculation according to value in -h argument, 
   // It should only be one row that needs to be skipped, and important
   // to remember is that in the output there will only be one header row.
+
   int i = 0;
-  for (i = 1; i <= skiplines; ++i) {
+  if (replace != 0) {
+    //Use original header
     getline(&buf, &buf_len, stdin);
-  }
+    printf("%s\n", buf);
 
-  // Make new header 
-  // print index
-  if (indexcolumn != 0) {
-    printf("%s", "0");
-  }
+  }else {
+    for (i = 1; i <= skiplines; ++i) {
+      getline(&buf, &buf_len, stdin);
+    }
 
-  // print remaining colnames
-  current = head;
-  if (indexcolumn == 0) {
-    printf("%s", current->strvar);
-    current = current->next;
-  }
-  while (current != NULL) {
-    printf("\t%s", current->strvar);
-    current = current->next;
-  }
-  printf("\n");
+    // Make new header 
+    // print index
+    if (indexcolumn != 0) {
+      printf("%s", "0");
+    }
 
-  //free list
-  current = head;
-  while (current != NULL) {
-    head = current->next;
-    free(current);
+    // print remaining colnames
     current = head;
+    if (indexcolumn == 0) {
+      printf("%s", current->strvar);
+      current = current->next;
+    }
+    while (current != NULL) {
+      printf("\t%s", current->strvar);
+      current = current->next;
+    }
+    printf("\n");
+
+    //free list
+    current = head;
+    while (current != NULL) {
+      head = current->next;
+      free(current);
+      current = head;
+    }
   }
 
   // Start processing first row
@@ -324,24 +338,45 @@ int main(int argc, char *argv[]) {
      strcpy(arr[i++], token);
      token = strtok(NULL, "\t");
   }
-
-  // use index value if available
-  char inxval[256] = "";
-  if (indexcolumn != 0) {
-    //inxval = strtol(arr[indexcolumn-1], NULL, 10);
-    printf("%s", arr[indexcolumn-1] );
-  }
   
-  int j;
-  for (j = 0; j < funlen; j++){
-    if (j == 0 && indexcolumn == 0) {
-      (*arrfun[j]) (arr, argcolvals, valmodifier);
-    }else{
-      printf("\t");
-      (*arrfun[j]) (arr, argcolvals, valmodifier);
+  int j = 0;
+  int k = 0;
+  if (replace != 0) {
+    // init colindex counter
+    for (k = 0; k < nrcols; k++){
+      if (k == 0) {
+        // if first column is the one to modify (usually this is an index, so maybe not)
+        if (k == replace) {
+          (*arrfun[j]) (arr, argcolvals, valmodifier);
+        }else {
+          printf("%s", arr[k] );
+        }
+      }else{
+        printf("\t");
+        // Check if replace index match present colindex
+        if (k == replace) {
+          (*arrfun[j]) (arr, argcolvals, valmodifier);
+        }else {
+          printf("%s", arr[k] );
+        }
+      }
     }
+    printf("\n");
+  }else {
+    // use index value if available
+    if (indexcolumn != 0) {
+      printf("%s", arr[indexcolumn-1] );
+    }
+    for (j = 0; j < funlen; j++){
+      if (j == 0 && indexcolumn == 0) {
+        (*arrfun[j]) (arr, argcolvals, valmodifier);
+      }else{
+        printf("\t");
+        (*arrfun[j]) (arr, argcolvals, valmodifier);
+      }
+    }
+    printf("\n");
   }
-  printf("\n");
 
   // free buf2
   if (buf2) free(buf2);
@@ -366,22 +401,43 @@ int main(int argc, char *argv[]) {
        //printf("&HERE=%s=HERE&\t", arr[i-1]);
     }
  
-    // Check if index is assigned, if so, then use it
-    if (indexcolumn != 0) {
-      //inxval = strtol(arr[indexcolumn-1], NULL, 10);
-      printf("%s", arr[indexcolumn-1] );
-    }
-    
-    // use user specified operators for the remaining rows
-    for (j = 0; j < funlen; j++){
-      if (j == 0 && indexcolumn == 0) {
-        (*arrfun[j]) (arr, argcolvals, valmodifier);
-      }else{
-        printf("\t");
-        (*arrfun[j]) (arr, argcolvals, valmodifier);
+  
+    if (replace != 0) {
+      // init colindex counter
+      for (k = 0; k < nrcols; k++){
+        if (k == 0) {
+          // if first column is the one to modify (usually this is an index, so maybe not)
+          if (k == replace) {
+            (*arrfun[j]) (arr, argcolvals, valmodifier);
+          }else {
+            printf("%s", arr[k] );
+          }
+        }else{
+          printf("\t");
+          // Check if replace index match present colindex
+          if (k == replace) {
+            (*arrfun[j]) (arr, argcolvals, valmodifier);
+          }else {
+            printf("%s", arr[k] );
+          }
+        }
       }
+      printf("\n");
+    }else {
+      // use index value if available
+      if (indexcolumn != 0) {
+        printf("%s", arr[indexcolumn-1] );
+      }
+      for (j = 0; j < funlen; j++){
+        if (j == 0 && indexcolumn == 0) {
+          (*arrfun[j]) (arr, argcolvals, valmodifier);
+        }else{
+          printf("\t");
+          (*arrfun[j]) (arr, argcolvals, valmodifier);
+        }
+      }
+      printf("\n");
     }
-    printf("\n");
 
     if (return_value != 0) {
       break;
