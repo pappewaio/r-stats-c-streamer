@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
         break;
 
       case 'v':
-	printf("r-stats-c-stremer 1.1.0\n");
+	printf("r-stats-c-stremer 1.1.1\n");
         return(0);
 
       case 's':
@@ -263,7 +263,8 @@ int main(int argc, char *argv[]) {
   if (replace != 0) {
     //Use original header
     getline(&buf, &buf_len, stdin);
-    printf("%s\n", buf);
+    //newline is already in buff, so there will be an automatic newline
+    printf("%s", buf);
 
   }else {
     for (i = 1; i <= skiplines; ++i) {
