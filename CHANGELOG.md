@@ -6,10 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Released]
 
+## [1.1.0] - 2021-05-12
+### Added
+
+- New functionality to make inplace replacement. The first function available is neglog10p.
+
 ## [1.0.3] - 2021-02-11
 ### Changed
 
-- changed permission so that build.sh is executable without having to first chmod
+- Changed permission so that build.sh is executable without having to first chmod
 
 ### Added
 
@@ -18,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.2] - 2021-01-20
 ### Changed
 
-- changed file name for the singularity definition file from an older name of the software
+- Changed file name for the singularity definition file from an older name of the software
 
 
 ## [1.0.1] - 2021-01-20

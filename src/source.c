@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
         break;
 
       case 'v':
-	printf("r-stats-c-stremer 1.0.3\n");
+	printf("r-stats-c-stremer 1.1.0\n");
         return(0);
 
       case 's':
