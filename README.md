@@ -15,7 +15,7 @@ Do this in same folder as CMakeLists.txt & source.c
 # Look at test data using head.
 cat test/testdata/linear_testStats.txt | head | column -t
 
-# Re-create the included testfile, which specifies functions to apply on each row
+# Re-create the included testfile, which specifies functions to apply on each row (linear regression)
 echo -e "zscore_from_pval_beta
 zscore_from_pval_beta_N
 zscore_from_beta_se
@@ -26,6 +26,16 @@ beta_from_zscore_N_af
 se_from_zscore_beta
 se_from_zscore_N_af
 N_from_zscore_beta_af"> functiontestfile.txt
+
+# Re-create the included testfile, which specifies functions to apply on each row (linear regression)
+echo -e "zscore_from_beta_se
+zscore_from_pval_oddsratio
+pval_from_zscore
+beta_from_oddsratio
+beta_from_zscore_se
+se_from_beta_zscore
+se_from_ORu95_ORl95
+Neff_from_Nca_Nco" > functiontestfile_logistic.txt
 
 # Try program
 cat test/testdata/linear_testStats.txt | ./build/r-stats-c-streamer --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin | head | column -t
@@ -90,9 +100,12 @@ cat test/testdata/linear_testStats.txt | ./build/r-stats-c-streamer --functionfi
 ### Test that it produces same result as companion R script performing the same operations
 The primary goal here is to test if there are any values different in the C and R versions of the script, and if there are describe then using different tolerance thresholds. This is ok for most variables, but for p-values it is not enough to know that also the very low p-values are ok. Another interesting test is to correlate the different version of inference for the same variable, i.e., are all three different variants of computing the zscore giving the same result? And does it correlate against the true variable.
 ```
-# Run equivalent R code
+# Run equivalent R code  - linear regression
 # needs packages: getopt
-cat test/testdata/linear_testStats.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7  --statmodel lin| head
+cat test/testdata/linear_testStats.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7  --statmodel lin | head
+
+# Run equivalent R code - logistic regression
+cat test/testdata/logistic_testStats.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile_logistic.txt --skiplines 1 --index 1 --pvalue 9 --beta 3 --standarderror 4 --Nindividuals 10 --Ncases 11 --Ncontrols 12 --zscore 8 --allelefreq 13 --oddsratio 5 --ORu95 6 --ORl95 7 --statmodel log | head
 
 # Test diff of values using tolerance thresholds
 mkdir -p test/out

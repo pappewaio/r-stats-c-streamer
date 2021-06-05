@@ -16,9 +16,13 @@ spec = matrix(c(
 'pvalue' , 'p', 2, "integer",
 'neglog10p' ,'l', 0 , "logical",
 'oddsratio' , 'o', 2, "integer",
+'ORu95' , 'u', 2, "integer",
+'ORl95' , 'x', 2, "integer",
 'beta' , 'b', 2, "integer",
 'standarderror' , 'e', 2, "integer",
 'Nindividuals' , 'n', 2, "integer",
+'Ncases' , 'c', 2, "integer",
+'Ncontrols' , 'r', 2, "integer",
 'zscore' , 'z', 2, "integer",
 'allelefreq' , 'a', 2, "integer",
 'allelefreqswitch', 'w', 0, "logical",
@@ -40,11 +44,20 @@ if ( !is.null(opt$help) ) {
 if ( is.null(opt$skiplines) ) { opt$skiplines = 0 }
 
 # Read functions in functionfile
-if(is.null(opt$functionfile)){
+if (is.null(opt$functionfile)) {
   cat("functionfile needs to be specified")
   q(status=1)
 }else{
   funcs <- scan(opt$functionfile, what="character", quiet=TRUE)
+}
+
+# Rename functions to either lin or log versions based on the statmodel argument
+if (opt$statmodel == "lin") {
+  funcs <- paste("lin_",funcs,sep="") 
+}else if (opt$statmodel == "log") {
+  funcs <- paste("log_",funcs,sep="") 
+}else {
+  stop("no statmodel argument like that exists")
 }
 
 # Make inxs vector for argument positions
@@ -56,6 +69,10 @@ if(!is.null(opt$standarderror)){argcolvals[4] <- opt$standarderror}
 if(!is.null(opt$Nindividuals)){argcolvals[5] <- opt$Nindividuals}
 if(!is.null(opt$zscore)){argcolvals[6] <- opt$zscore}
 if(!is.null(opt$allelefreq)){argcolvals[7] <- opt$allelefreq}
+if(!is.null(opt$ORu95)){argcolvals[8] <- opt$ORu95}
+if(!is.null(opt$ORl95)){argcolvals[9] <- opt$ORl95}
+if(!is.null(opt$Ncases)){argcolvals[10] <- opt$Ncases}
+if(!is.null(opt$Ncontrols)){argcolvals[11] <- opt$Ncontrols}
 
 # Add run specific logicals
 valmodifier <- rep(NA, length=2)
