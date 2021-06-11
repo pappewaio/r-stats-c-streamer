@@ -22,7 +22,7 @@ spec = matrix(c(
 'standarderror' , 'e', 2, "integer",
 'Nindividuals' , 'n', 2, "integer",
 'Ncases' , 'c', 2, "integer",
-'Ncontrols' , 'r', 2, "integer",
+'Ncontrols' , 'q', 2, "integer",
 'zscore' , 'z', 2, "integer",
 'allelefreq' , 'a', 2, "integer",
 'allelefreqswitch', 'w', 0, "logical",

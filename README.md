@@ -37,14 +37,17 @@ se_from_beta_zscore
 se_from_ORu95_ORl95
 Neff_from_Nca_Nco" > functiontestfile_logistic.txt
 
-# Try program
-cat test/testdata/linear_testStats.txt | ./build/r-stats-c-streamer --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin | head | column -t
+# Try program - linear model
+cat test/testdata/logistic_testStats.txt | ./build/r-stats-c-streamer --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin | head | column -t
 ###0             zscore_from_pval_beta  zscore_from_pval_beta_N  zscore_from_beta_se	etc..
 ###rs4819391_G   1.832718               1.834151                 1.834151	etc..
 ###rs11089128_G  -0.808975              -0.809215                -0.809215	etc..
 ###rs7288972_C   -1.075487              -1.075903                -1.075903	etc..
 ###rs2032141_A   2.068237               2.070195                 2.070195	etc..
 ###etc...
+
+# Try program - logistic model
+cat test/testdata/linear_testStats.txt | ./build/r-stats-c-streamer --functionfile functiontestfile_logistic.txt --skiplines 1 --index 1 --pvalue 9 --beta 3 --standarderror 4 --Nindividuals 10 --Ncases 11 --Ncontrols 12 --zscore 8 --allelefreq 13 --oddsratio 5 --ORu95 6 --ORl95 7 --statmodel log
 
 
 # If the P-value uses -log10, apply the neglog10 flag

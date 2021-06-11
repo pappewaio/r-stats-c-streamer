@@ -21,21 +21,30 @@ int lin_operator_zscore_from_beta_se(char **arrayvals, int arraypositions[], int
 int lin_operator_zscore_from_pval_beta(char **arrayvals, int arraypositions[], int valmodifier[]);
 int lin_operator_zscore_from_pval_beta_N(char **arrayvals, int arraypositions[], int valmodifier[]);
 int log_operator_zscore_from_pval_oddsratio(char **arrayvals, int arraypositions[], int valmodifier[]);
+int log_operator_zscore_from_beta_se(char **arrayvals, int arraypositions[], int valmodifier[]);
 
 //Pvalue
 int lin_operator_pval_from_zscore_N(char **arrayvals, int arraypositions[], int valmodifier[]);
 int lin_operator_pval_from_zscore(char **arrayvals, int arraypositions[], int valmodifier[]);
+int log_operator_pval_from_zscore(char **arrayvals, int arraypositions[], int valmodifier[]);
 
-//Beta (not ready)
+//Beta
 int lin_operator_beta_from_zscore_se(char **arrayvals, int arraypositions[], int valmodifier[]);
 int lin_operator_beta_from_zscore_N_af(char **arrayvals, int arraypositions[], int valmodifier[]);
+int log_operator_beta_from_oddsratio(char **arrayvals, int arraypositions[], int valmodifier[]);
+int log_operator_beta_from_zscore_se(char **arrayvals, int arraypositions[], int valmodifier[]);
 
-//SE (not ready)
+//SE
 int lin_operator_se_from_zscore_beta(char **arrayvals, int arraypositions[], int valmodifier[]);
 int lin_operator_se_from_zscore_N_af(char **arrayvals, int arraypositions[], int valmodifier[]);
+int log_operator_se_from_beta_zscore(char **arrayvals, int arraypositions[], int valmodifier[]); 
+int log_operator_se_from_OR_u95_OR_l95(char **arrayvals, int arraypositions[], int valmodifier[]);
 
-//N (not ready)
+//N
 int lin_operator_N_from_zscore_beta_af(char **arrayvals, int arraypositions[], int valmodifier[]);
 
+//Neff
+int log_operator_Neff_from_Nca_Nco(char **arrayvals, int arraypositions[], int valmodifier[]);
 
 #endif
+
