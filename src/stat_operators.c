@@ -46,8 +46,22 @@ void *populate_array(int (**p)(char**, int*, int*), char *operator_inname, int i
   } else if(strcmp(statmodel, "log") == 0 ){
     if (strcmp(operator_inname, "zscore_from_pval_oddsratio") == 0) {
       p[inx] = log_operator_zscore_from_pval_oddsratio;
+    } else if (strcmp(operator_inname, "beta_from_oddsratio") == 0) {
+      p[inx] = log_operator_beta_from_oddsratio;
+    } else if (strcmp(operator_inname, "pval_from_zscore") == 0) {
+      p[inx] = log_operator_pval_from_zscore;
+    } else if (strcmp(operator_inname, "zscore_from_beta_se") == 0) {
+      p[inx] = log_operator_zscore_from_beta_se;
+    } else if (strcmp(operator_inname, "beta_from_zscore_se") == 0) {
+      p[inx] = log_operator_beta_from_zscore_se;
+    } else if (strcmp(operator_inname, "se_from_beta_zscore") == 0) {
+      p[inx] = log_operator_se_from_beta_zscore;
+    } else if (strcmp(operator_inname, "se_from_ORu95_ORl95") == 0) {
+      p[inx] = log_operator_se_from_OR_u95_OR_l95;
+    } else if (strcmp(operator_inname, "Neff_from_Nca_Nco") == 0) {
+      p[inx] = log_operator_Neff_from_Nca_Nco;
     } else {
-      fprintf(stderr, "[ERROR] Unknown function: %s", operator_inname);
+      fprintf(stderr, "[ERROR] Unknown function: %s\n", operator_inname);
     }
 
   } else if(strcmp(statmodel, "none") == 0 ){
@@ -132,32 +146,7 @@ int lin_operator_zscore_from_beta_se(char **arrayvals, int arraypositions[], int
   return 0;
 }
 
-// z-score from pvalue and oddsratio (logistic regression only)
-/* 
-  Need to fill in details here
-  Need to fill in details here
-*/
-int log_operator_zscore_from_pval_oddsratio(char **arrayvals, int arraypositions[], int valmodifier[]) {
-  double or = strtod(arrayvals[arraypositions[1]], NULL);
-  double prob = strtod(arrayvals[arraypositions[0]], NULL);
-
-  if (errno != 0) {
-    perror("[ERROR] Failed to parse floating point number");
-    errno = 0;
-
-    return 1;
-  }
-
-  if (valmodifier[1] == 1) {
-    prob = pow(10, -prob);
-  }
-
-  //sign funciton to get -1,0,1
-  int sign = (log(or) > 0) - (log(or) < 0);
-  printf("%lf", sign*fabs(qnorm(prob, 0.0, 1.0, 1, 0)));
-
-  return 0;
-}
+ 
  
 // Z-score from pvalue and beta (linear regression)
 /* 
@@ -395,6 +384,203 @@ int lin_operator_N_from_zscore_beta_af(char **arrayvals, int arraypositions[], i
   }
 
   printf("%lf", ((zscore*zscore)/(2*af*(1-af)*beta*beta)) - zscore*zscore );
+
+  return 0;
+}
+
+/*
+ Stat conversion formulas to be implemented in sumstats cleaner
+
+ Could be interesting to study the effects of compounded inference - is there bias?
+ For example, Only P and B are recorded.  Get Z_fromP, use Z_fromP to get SE_fromBZ.
+				Compare SE from B,Z to SE from B,Z_fromP
+
+ We should be aware of different models and if conversions are valid
+
+ 2p(1-p), the variance of a SNP genotypes, is a crucial quantity that is typically underestimated
+	because it assumed HWE.  This is unlikely to be true in principal ever for a case-control trait, 
+	but especially if there is population stratification or cryptic relatedness.  See comparisons where 
+	it is an estimate that is typically biased downwards relative to the true SNP variance.
+
+ Further sensitivity testing and studies of downstream consequences of mis-conversions would be 
+	interesting to pursue.  Espcially in the context of very subtle pop strat and the potential 
+	detection of and correction of inflated effect sizes that could be done per SNP rather than a 
+	global correction that is the same for all SNPs.
+
+*/
+
+// z-score from pvalue and oddsratio (logistic regression only)
+/* 
+Use a z-approximation to convert P -> Z
+*/
+int log_operator_zscore_from_pval_oddsratio(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  double or = strtod(arrayvals[arraypositions[1]], NULL);
+  double prob = strtod(arrayvals[arraypositions[0]], NULL);
+
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse floating point number");
+    errno = 0;
+
+    return 1;
+  }
+
+  if (valmodifier[1] == 1) {
+    prob = pow(10, -prob);
+  }
+
+  //sign funciton to get -1,0,1
+  int sign = (log(or) > 0) - (log(or) < 0);
+  printf("%lf", sign*fabs(qnorm(prob/2, 0.0, 1.0, 1, 0)));
+
+  return 0;
+}
+
+// z-score from beta and se (logistic regression only)
+/* 
+Use the Beta and standard error to convert Beta^2 / SE^2 -> Wald = z^2
+Wald is asymptotically chi-square
+R computes sqrt( Wald ) ~ z = b / se
+The sample size dependent t-stats are not applied for logistic models
+*/
+int log_operator_zscore_from_beta_se(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  double beta = strtod(arrayvals[arraypositions[2]], NULL);
+  double stderror = strtod(arrayvals[arraypositions[3]], NULL);
+
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse floating point number");
+    errno = 0;
+    return 1;
+  }
+
+  printf("%lf", beta/stderror);
+
+  return 0;
+}
+
+// pvalue from zscore (logistic regression only)
+/* 
+Use the test statistics and the z-distribution
+*/
+int log_operator_pval_from_zscore(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  double zscore = strtod(arrayvals[arraypositions[5]], NULL);
+
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse floating point number");
+    errno = 0;
+    return 1;
+  }
+
+  printf("%lf", 2*pnorm( -fabs( zscore ), 0, 1, 1, 0 ));
+
+  return 0;
+}
+
+
+// beta from OR (logistic regression only)
+/* 
+Compute Beta by taking the natural log (ln, log base e) of the OR
+*/
+int log_operator_beta_from_oddsratio(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  double or = strtod(arrayvals[arraypositions[1]], NULL);
+
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse floating point number");
+    errno = 0;
+    return 1;
+  }
+
+  printf("%lf", log(or));
+
+  return 0;
+}
+
+
+// beta from zscore and se (logistic regression only)
+/* 
+Priority 2: B from Z, SE
+# Use the test statistics and the estimated SE to infer effect size
+sumstats.new$B_fromZSE <- sumstats.orig$Z * sumstats.orig$SE
+*/
+int log_operator_beta_from_zscore_se(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  double stderror = strtod(arrayvals[arraypositions[3]], NULL);
+  double zscore = strtod(arrayvals[arraypositions[5]], NULL);
+
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse floating point number");
+    errno = 0;
+    return 1;
+  }
+
+  printf("%lf", zscore*stderror);
+
+  return 0;
+}
+
+// se from zscore and beta (logistic regression only)
+/* 
+SE from Z, B
+# Use the test statistics and the estimated effects to infer SE
+*/
+int log_operator_se_from_beta_zscore(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  double beta = strtod(arrayvals[arraypositions[2]], NULL);
+  double zscore = strtod(arrayvals[arraypositions[5]], NULL);
+
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse floating point number");
+    errno = 0;
+    return 1;
+  }
+
+  printf("%lf", beta/zscore);
+
+  return 0;
+}
+
+
+// se from OR_u95 and OR_l95 (logistic regression only)
+/* 
+SE from OR_u95 and OR_l95, assuming Wald CI
+Use the test statistics and the estimated effects to infer SE
+If the CI is not symmetric on the natural log scale, it maybe be estimated as a profile CI, ratehr than Wald.
+In the case of a profile CI, the SE estimated here will be over estimated
+sumstats.new$SE_fromORu95ORl95 <- ( log( as.numeric( sumstats.orig$OR_u95 ) ) - log( as.numeric( sumstats.orig$OR_l95 ) ) ) / ( 2*qnorm( 0.975 ) )
+*/
+int log_operator_se_from_OR_u95_OR_l95(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  double or_u95 = strtod(arrayvals[arraypositions[7]], NULL);
+  double or_l95 = strtod(arrayvals[arraypositions[8]], NULL);
+
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse floating point number");
+    errno = 0;
+    return 1;
+  }
+
+  printf("%lf", (log(or_u95)-log(or_l95))/(2*qnorm(0.975, 0.0, 1.0, 1, 0)));
+
+  return 0;
+}
+//
+//
+// YOU ARE HERE
+// N effective from Ncases and Ncontrols (logistic regression only)
+/* 
+Priority 1: Neff from Ncase, Ncontrol
+Derived as the effective N / should the numerator be 2 (https://www.nature.com/articles/nprot.2014.071)
+	or 4 (https://groups.google.com/g/ldsc_users/c/yJT-_qSh_44/m/MmKKJYsBAwAJ)?
+sumstats.new$N_fromNcaseN	cont <- 4 / ( (1/sumstats.orig$Ncase) + (1/sumstats.orig$Ncont) )
+*/
+int log_operator_Neff_from_Nca_Nco(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  double ncases = strtod(arrayvals[arraypositions[9]], NULL);
+  double ncontrols = strtod(arrayvals[arraypositions[10]], NULL);
+
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse floating point number");
+    errno = 0;
+    return 1;
+  }
+
+
+  printf("%lf", 4/((1/ncases)+(1/ncontrols)));
 
   return 0;
 }

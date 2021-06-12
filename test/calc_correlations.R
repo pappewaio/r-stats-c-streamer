@@ -23,7 +23,7 @@ if(sum(which_all) >1 ){
   #inform about any removed variables
   zeroset <- colnames(tab2)[sd0]
   for (cn in zeroset){
-    message("message: could not calculated for variable:", cn, "\n")
+    message("message: Due to sd==0, not possible to use correlation for variable:", cn, "\n")
   }
   
   #remove from cor calculation and proceed if condition is met

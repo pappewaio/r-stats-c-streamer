@@ -1,6 +1,6 @@
 //This script split arguments based on tab separator
 //strtok() will consider any sequence of tabs a single delimiter. This can
-// be fine for this application as the pipeline can introduce NAs early in
+// be fine for this application as upstream software can introduce NAs early in
 // the workflow
 
 #include <errno.h>
@@ -38,9 +38,13 @@ int main(int argc, char *argv[]) {
   int pvalue = 0;
   int neglog10p = 0;
   int oddsratio = 0;
+  int ORu95 = 0;
+  int ORl95 = 0;
   int beta = 0;
   int standarderror = 0;
   int Nindividuals = 0;
+  int Ncases = 0;
+  int Ncontrols = 0;
   int zscore = 0;
   int allelefreq = 0;
   int allelefreqswitch = 0;
@@ -61,9 +65,13 @@ int main(int argc, char *argv[]) {
         {"pvalue",  required_argument, 0, 'p'},
         {"neglog10p",    no_argument, 0, 'l'},
         {"oddsratio",    required_argument, 0, 'o'},
+        {"ORu95",    required_argument, 0, 'u'},
+        {"ORl95",    required_argument, 0, 'x'},
         {"beta",    required_argument, 0, 'b'},
         {"standarderror",    required_argument, 0, 'e'},
         {"Nindividuals",    required_argument, 0, 'n'},
+        {"Ncases",    required_argument, 0, 'c'},
+        {"Ncontrols",    required_argument, 0, 'q'},
         {"zscore",    required_argument, 0, 'z'},
         {"allelefreq",    required_argument, 0, 'a'},
         {"allelefreqswitch",    no_argument, 0, 'w'},
@@ -112,6 +120,14 @@ int main(int argc, char *argv[]) {
         oddsratio = atoi(optarg) -1; 
         break;
 
+      case 'u':
+        ORu95 = atoi(optarg) -1; 
+        break;
+
+      case 'x':
+        ORl95 = atoi(optarg) -1; 
+        break;
+
       case 'b':
         beta = atoi(optarg) -1; 
         break;
@@ -122,6 +138,14 @@ int main(int argc, char *argv[]) {
 
       case 'n':
         Nindividuals = atoi(optarg) -1; 
+        break;
+
+      case 'c':
+        Ncases = atoi(optarg) -1; 
+        break;
+
+      case 'q':
+        Ncontrols = atoi(optarg) -1; 
         break;
 
       case 'z':
@@ -234,6 +258,8 @@ int main(int argc, char *argv[]) {
   if (beta != 0) { argtot++;}
   if (standarderror != 0) { argtot++;}
   if (Nindividuals != 0) { argtot++;}
+  if (Ncases != 0) { argtot++;}
+  if (Ncontrols != 0) { argtot++;}
   if (zscore != 0) { argtot++;}
   if (allelefreq != 0) { argtot++;}
 
@@ -246,6 +272,10 @@ int main(int argc, char *argv[]) {
   if (Nindividuals != 0) { argcolvals[4] = Nindividuals;}
   if (zscore != 0) { argcolvals[5] = zscore;}
   if (allelefreq != 0) { argcolvals[6] = allelefreq;}
+  if (ORu95 != 0) { argcolvals[7] = ORu95;}
+  if (ORl95 != 0) { argcolvals[8] = ORl95;}
+  if (Ncases != 0) { argcolvals[9] = Ncases;}
+  if (Ncontrols != 0) { argcolvals[10] = Ncontrols;}
   
   // Add one more that will be 0 or 1
   int valmodifier[2] = {0};
