@@ -430,7 +430,7 @@ int log_operator_zscore_from_pval_oddsratio(char **arrayvals, int arraypositions
 
   //sign funciton to get -1,0,1
   int sign = (log(or) > 0) - (log(or) < 0);
-  printf("%lf", sign*fabs(qnorm(prob, 0.0, 1.0, 1, 0)));
+  printf("%lf", sign*fabs(qnorm(prob/2, 0.0, 1.0, 1, 0)));
 
   return 0;
 }
