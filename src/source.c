@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
         break;
 
       case 'v':
-	printf("r-stats-c-stremer 1.2.0\n");
+	printf("r-stats-c-stremer 1.2.1\n");
         return(0);
 
       case 's':

@@ -38,7 +38,7 @@ se_from_ORu95_ORl95
 Neff_from_Nca_Nco" > functiontestfile_logistic.txt
 
 # Try program - linear model
-cat test/testdata/logistic_testStats.txt | ./build/r-stats-c-streamer --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin | head | column -t
+cat test/testdata/linear_testStats.txt | ./build/r-stats-c-streamer --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin | head | column -t
 ###0             zscore_from_pval_beta  zscore_from_pval_beta_N  zscore_from_beta_se	etc..
 ###rs4819391_G   1.832718               1.834151                 1.834151	etc..
 ###rs11089128_G  -0.808975              -0.809215                -0.809215	etc..

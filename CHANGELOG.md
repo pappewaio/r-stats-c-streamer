@@ -4,11 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Released]
+## [1.2.1] - 2021-11-22
+### Fixed
+
+- In the README the logistic example data was given to the linear run.
+
 ## [1.2.0] - 2021-06-12
 ### Added
 
-- New functionality to handle logisic regression statistics
+- New functionality to handle logisic regression statistics.
 
 ## [1.1.1] - 2021-05-12
 ### Changed
