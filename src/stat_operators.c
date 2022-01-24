@@ -83,6 +83,10 @@ Compute per-SNP default Rmath R functions
 
 //Compute qnorm directly from the Rmath library
 int none_pval_from_neglog10p(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  if(strcmp(arrayvals[arraypositions[0]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
   //take out element 1 which should be the pvalue
   double prob = strtod(arrayvals[arraypositions[0]], NULL);
 
@@ -103,6 +107,10 @@ int none_pval_from_neglog10p(char **arrayvals, int arraypositions[], int valmodi
 
 //Compute qnorm directly from the Rmath library
 int lin_operator_qnorm(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  if(strcmp(arrayvals[arraypositions[0]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
   //take out element 1 which should be the pvalue
   double prob = strtod(arrayvals[arraypositions[0]], NULL);
 
@@ -131,18 +139,26 @@ Compute per-SNP test statistics
   Use the Beta and standard error to convert Beta/SE -> t
 */
 int lin_operator_zscore_from_beta_se(char **arrayvals, int arraypositions[], int valmodifier[]) {
+
+  if(strcmp(arrayvals[arraypositions[2]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[3]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+
   double beta = strtod(arrayvals[arraypositions[2]], NULL);
   double stderror = strtod(arrayvals[arraypositions[3]], NULL);
 
   if (errno != 0) {
     perror("[ERROR] Failed to parse floating point number");
     errno = 0;
-
     return 1;
   }
 
   printf("%lf", beta/stderror);
-
   return 0;
 }
 
@@ -156,11 +172,16 @@ int lin_operator_zscore_from_beta_se(char **arrayvals, int arraypositions[], int
   Shrunken towards 0 relative to truth as a function of absolute magnitude of truth 
 */
 int lin_operator_zscore_from_pval_beta(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  if(strcmp(arrayvals[arraypositions[0]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[2]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
   double prob = strtod(arrayvals[arraypositions[0]], NULL);
   double beta = strtod(arrayvals[arraypositions[2]], NULL);
-  //long double beta = strtold(arrayvals[arraypositions[2]], NULL);
-  //printf("%s", arrayvals[arraypositions[2]]);
-  //printf("%Lf", beta);
  
   if (errno != 0) {
     perror("[ERROR] Failed to parse floating point number");
@@ -186,6 +207,18 @@ int lin_operator_zscore_from_pval_beta(char **arrayvals, int arraypositions[], i
   Does not account for loss of degrees of freedom due to covariates
 */
 int lin_operator_zscore_from_pval_beta_N(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  if(strcmp(arrayvals[arraypositions[4]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[0]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[2]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
   double Nindividuals = strtod(arrayvals[arraypositions[4]], NULL);
   double prob = strtod(arrayvals[arraypositions[0]], NULL);
   double beta = strtod(arrayvals[arraypositions[2]], NULL);
@@ -218,6 +251,14 @@ Compute per-SNP P-values
   Does not account for degrees of freedom lost to covariates in variance estimation
 */
 int lin_operator_pval_from_zscore_N(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  if(strcmp(arrayvals[arraypositions[4]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[5]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
   double Nindividuals = strtod(arrayvals[arraypositions[4]], NULL);
   double zscore = strtod(arrayvals[arraypositions[5]], NULL);
 
@@ -241,6 +282,10 @@ int lin_operator_pval_from_zscore_N(char **arrayvals, int arraypositions[], int 
   bigger errors that might result from floating point storage? seem to peak around 0.1?
 */
 int lin_operator_pval_from_zscore(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  if(strcmp(arrayvals[arraypositions[5]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
   double zscore = strtod(arrayvals[arraypositions[5]], NULL);
 
   if (errno != 0) {
@@ -261,6 +306,14 @@ int lin_operator_pval_from_zscore(char **arrayvals, int arraypositions[], int va
    Use the test statistics and the estimated SE to infer effect size
 */
 int lin_operator_beta_from_zscore_se(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  if(strcmp(arrayvals[arraypositions[3]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[5]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
   double stderror = strtod(arrayvals[arraypositions[3]], NULL);
   double zscore = strtod(arrayvals[arraypositions[5]], NULL);
 
@@ -285,6 +338,14 @@ int lin_operator_beta_from_zscore_se(char **arrayvals, int arraypositions[], int
    Note: Ignores covariate effects and adjustment for degrees of freedom from estimation
 */
 int lin_operator_beta_from_zscore_N_af(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  if(strcmp(arrayvals[arraypositions[5]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[4]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
   double zscore = strtod(arrayvals[arraypositions[5]], NULL);
   long double Nindividuals = strtod(arrayvals[arraypositions[4]], NULL);
   //if alleleswitchflag is not set, then reverse allele freq to convert from eaf to oaf
@@ -312,6 +373,14 @@ int lin_operator_beta_from_zscore_N_af(char **arrayvals, int arraypositions[], i
  * Use the test statistics and the estimated effects to infer SE
 */
 int lin_operator_se_from_zscore_beta(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  if(strcmp(arrayvals[arraypositions[5]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[2]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
   double zscore = strtod(arrayvals[arraypositions[5]], NULL);
   double beta = strtod(arrayvals[arraypositions[2]], NULL);
 
@@ -337,9 +406,20 @@ int lin_operator_se_from_zscore_beta(char **arrayvals, int arraypositions[], int
   Citation: Supplement of https://www.nature.com/articles/ng.3538
 */
 int lin_operator_se_from_zscore_N_af(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  if(strcmp(arrayvals[arraypositions[5]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[4]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[6]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
   double zscore = strtod(arrayvals[arraypositions[5]], NULL);
   double Nindividuals = strtod(arrayvals[arraypositions[4]], NULL);
-  double allelefreq = strtod(arrayvals[arraypositions[6]], NULL);
   //if alleleswitchflag is not set, then reverse allele freq to convert from eaf to oaf
   //Although for this formula it doesnt seem to matter
   double af = strtod(arrayvals[arraypositions[6]], NULL);
@@ -367,6 +447,18 @@ int lin_operator_se_from_zscore_N_af(char **arrayvals, int arraypositions[], int
  Shows upward bias in test data.
 */
 int lin_operator_N_from_zscore_beta_af(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  if(strcmp(arrayvals[arraypositions[5]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[2]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[6]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
   double zscore = strtod(arrayvals[arraypositions[5]], NULL);
   double beta = strtod(arrayvals[arraypositions[2]], NULL);
   //if alleleswitchflag is not set, then reverse allele freq to convert from eaf to oaf
@@ -414,6 +506,14 @@ int lin_operator_N_from_zscore_beta_af(char **arrayvals, int arraypositions[], i
 Use a z-approximation to convert P -> Z
 */
 int log_operator_zscore_from_pval_oddsratio(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  if(strcmp(arrayvals[arraypositions[1]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[0]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
   double or = strtod(arrayvals[arraypositions[1]], NULL);
   double prob = strtod(arrayvals[arraypositions[0]], NULL);
 
@@ -443,6 +543,14 @@ R computes sqrt( Wald ) ~ z = b / se
 The sample size dependent t-stats are not applied for logistic models
 */
 int log_operator_zscore_from_beta_se(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  if(strcmp(arrayvals[arraypositions[2]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[3]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
   double beta = strtod(arrayvals[arraypositions[2]], NULL);
   double stderror = strtod(arrayvals[arraypositions[3]], NULL);
 
@@ -462,6 +570,10 @@ int log_operator_zscore_from_beta_se(char **arrayvals, int arraypositions[], int
 Use the test statistics and the z-distribution
 */
 int log_operator_pval_from_zscore(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  if(strcmp(arrayvals[arraypositions[5]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
   double zscore = strtod(arrayvals[arraypositions[5]], NULL);
 
   if (errno != 0) {
@@ -481,6 +593,10 @@ int log_operator_pval_from_zscore(char **arrayvals, int arraypositions[], int va
 Compute Beta by taking the natural log (ln, log base e) of the OR
 */
 int log_operator_beta_from_oddsratio(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  if(strcmp(arrayvals[arraypositions[1]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
   double or = strtod(arrayvals[arraypositions[1]], NULL);
 
   if (errno != 0) {
@@ -502,6 +618,14 @@ Priority 2: B from Z, SE
 sumstats.new$B_fromZSE <- sumstats.orig$Z * sumstats.orig$SE
 */
 int log_operator_beta_from_zscore_se(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  if(strcmp(arrayvals[arraypositions[3]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[5]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
   double stderror = strtod(arrayvals[arraypositions[3]], NULL);
   double zscore = strtod(arrayvals[arraypositions[5]], NULL);
 
@@ -522,6 +646,14 @@ SE from Z, B
 # Use the test statistics and the estimated effects to infer SE
 */
 int log_operator_se_from_beta_zscore(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  if(strcmp(arrayvals[arraypositions[2]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[5]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
   double beta = strtod(arrayvals[arraypositions[2]], NULL);
   double zscore = strtod(arrayvals[arraypositions[5]], NULL);
 
@@ -546,6 +678,14 @@ In the case of a profile CI, the SE estimated here will be over estimated
 sumstats.new$SE_fromORu95ORl95 <- ( log( as.numeric( sumstats.orig$OR_u95 ) ) - log( as.numeric( sumstats.orig$OR_l95 ) ) ) / ( 2*qnorm( 0.975 ) )
 */
 int log_operator_se_from_OR_u95_OR_l95(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  if(strcmp(arrayvals[arraypositions[7]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[8]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
   double or_u95 = strtod(arrayvals[arraypositions[7]], NULL);
   double or_l95 = strtod(arrayvals[arraypositions[8]], NULL);
 
@@ -570,6 +710,14 @@ Derived as the effective N / should the numerator be 2 (https://www.nature.com/a
 sumstats.new$N_fromNcaseN	cont <- 4 / ( (1/sumstats.orig$Ncase) + (1/sumstats.orig$Ncont) )
 */
 int log_operator_Neff_from_Nca_Nco(char **arrayvals, int arraypositions[], int valmodifier[]) {
+  if(strcmp(arrayvals[arraypositions[9]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[10]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
   double ncases = strtod(arrayvals[arraypositions[9]], NULL);
   double ncontrols = strtod(arrayvals[arraypositions[10]], NULL);
 

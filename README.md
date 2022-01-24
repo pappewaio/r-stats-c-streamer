@@ -1,3 +1,8 @@
+# r-stats-c-streamer
+An efficient way of doing typical stat conversions or other math operations, using the internal C implementations from R without using R code to access them.
+
+version:1.2.2
+
 ### The utilization of cmake and the rmath library (prerequisites)
 - (on Ubuntu): sudo apt install cmake
 - https://github.com/statslabs/rmath
@@ -81,94 +86,6 @@ cat test/testdata/linear_testStats_neglog10Pvalue.txt | ./build/r-stats-c-stream
 
 Right now the replace functionality can only replace one column at a time, but we have left room for a future upgrade where we could replace multiple columns each using a specific function defined in the functionfile.
 
-### Test that it doesnt leak memory using valgrind
-
-To identify reserved memory not freed and general bad memory handling we can use valgrind (which you have to install)
-
-```
-valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose \
-cat test/testdata/linear_testStats.txt | ./build/r-stats-c-streamer --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin | head | column -t
-
-#If all went well, then these would be the last lines
-==35047== HEAP SUMMARY:
-==35047==     in use at exit: 0 bytes in 0 blocks
-==35047==   total heap usage: 46 allocs, 46 frees, 1,060,870 bytes allocated
-==35047==
-==35047== All heap blocks were freed -- no leaks are possible
-==35047==
-==35047== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
-
-```
-
-### Test that it produces same result as companion R script performing the same operations
-The primary goal here is to test if there are any values different in the C and R versions of the script, and if there are describe then using different tolerance thresholds. This is ok for most variables, but for p-values it is not enough to know that also the very low p-values are ok. Another interesting test is to correlate the different version of inference for the same variable, i.e., are all three different variants of computing the zscore giving the same result? And does it correlate against the true variable.
-```
-# Run equivalent R code  - linear regression
-# needs packages: getopt
-cat test/testdata/linear_testStats.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7  --statmodel lin | head
-
-# Run equivalent R code - logistic regression
-cat test/testdata/logistic_testStats.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile_logistic.txt --skiplines 1 --index 1 --pvalue 9 --beta 3 --standarderror 4 --Nindividuals 10 --Ncases 11 --Ncontrols 12 --zscore 8 --allelefreq 13 --oddsratio 5 --ORu95 6 --ORl95 7 --statmodel log | head
-
-# Test diff of values using tolerance thresholds (linear)
-mkdir -p test/out
-cat test/testdata/linear_testStats.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7  --statmodel lin > test/out/r_version
-cat test/testdata/linear_testStats.txt | ./build/r-stats-c-streamer --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin > test/out/c_version
-./test/compare_r_and_c.sh test/out/c_version test/out/r_version
-###OK: Same number of columns in both files
-###values with diff tolerance: 0.000001
-###41
-###values with diff tolerance: 0.00001
-###38
-###values with diff tolerance: 0.0001
-###32
-###values with diff tolerance: 0.001
-###0
-
-# Test diff of values using tolerance thresholds (logistic)
-mkdir -p test/out
-cat test/testdata/logistic_testStats.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile_logistic.txt --skiplines 1 --index 1 --pvalue 9 --beta 3 --standarderror 4 --Nindividuals 10 --Ncases 11 --Ncontrols 12 --zscore 8 --allelefreq 13 --oddsratio 5 --ORu95 6 --ORl95 7 --statmodel log > test/out/r_version_2
-cat test/testdata/logistic_testStats.txt | ./build/r-stats-c-streamer --functionfile functiontestfile_logistic.txt --skiplines 1 --index 1 --pvalue 9 --beta 3 --standarderror 4 --Nindividuals 10 --Ncases 11 --Ncontrols 12 --zscore 8 --allelefreq 13 --oddsratio 5 --ORu95 6 --ORl95 7 --statmodel log > test/out/c_version_2
-./test/compare_r_and_c.sh test/out/c_version_2 test/out/r_version_2
-###OK: Same number of columns in both files
-###values with diff tolerance: 0.000001
-###41
-###values with diff tolerance: 0.00001
-###38
-###values with diff tolerance: 0.0001
-###32
-###values with diff tolerance: 0.001
-###0
-
-#test neglog10p flag
-cat test/testdata/linear_testStats_neglog10Pvalue.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7  --statmodel lin --neglog10p | head
-
-```
-
-
-### Generate 1 000 000 rows test and timestamp the C and R versions
-```
-# Initiate large gwas file
-cat test/testdata/linear_testStats.txt >  test/out/testdata_100000_rows.txt
-
-# Amplify file to 1 000 000 rows
-for i in {2..1000};do
-  tail -n+2 test/testdata/linear_testStats.txt
-done >> test/out/testdata_100000_rows.txt
-
-time cat test/out/testdata_100000_rows.txt | Rscript test/calc_linear_functions.R --functionfile  functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin > test/out/r_version2
-###real	1m5,043s
-###user	0m6,490s
-###sys	0m55,129s
-
-
-time cat test/out/testdata_100000_rows.txt | ./build/r-stats-c-streamer --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin > test/out/c_version2
-###real	0m0,753s
-###user	0m0,610s
-###sys	0m0,087s
-
-```
-
 ### Build singularity image
 First make sure singularity is installed. Then if you are satisfied with the tests above you can proceed and build the image, which will make it possible to directly run on for example a high-performance cluster without admin privileges.
 
@@ -182,3 +99,8 @@ sudo singularity build images/${fname} ubuntu-20.04_r-stats-c-streamer.def
 cat test/testdata/linear_testStats.txt | singularity run --bind .:/mnt images/2020-12-14-ubuntu-2004_r-stats-c-streamer.simg r-stats-c-streamer --functionfile  /mnt/functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin | head | column -t
 
 ```
+
+### Extra
+- See [developer specifics](docs/developers.md) for testing and other non user specific stuff
+
+
