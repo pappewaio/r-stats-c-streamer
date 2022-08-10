@@ -1,7 +1,7 @@
 # r-stats-c-streamer
 An efficient way of doing typical stat conversions or other math operations, using the internal C implementations from R without using R code to access them.
 
-version:1.2.2
+version:1.2.3
 
 ### The utilization of cmake and the rmath library (prerequisites)
 - (on Ubuntu): sudo apt install cmake
