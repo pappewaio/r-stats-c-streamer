@@ -47,6 +47,8 @@ int main(int argc, char *argv[]) {
   int Ncontrols = 0;
   int zscore = 0;
   int allelefreq = 0;
+  int CaseAF = 0;
+  int ControlAF = 0;
   int allelefreqswitch = 0;
   char statmodel[256];
   char functionfile[256];
@@ -74,6 +76,8 @@ int main(int argc, char *argv[]) {
         {"Ncontrols",    required_argument, 0, 'q'},
         {"zscore",    required_argument, 0, 'z'},
         {"allelefreq",    required_argument, 0, 'a'},
+        {"CaseAF",    required_argument, 0, 'y'},
+        {"ControlAF",    required_argument, 0, 't'},
         {"allelefreqswitch",    no_argument, 0, 'w'},
         {"functionfile",    required_argument, 0, 'f'},
         {"statmodel",    required_argument, 0, 'm'},
@@ -81,7 +85,7 @@ int main(int argc, char *argv[]) {
         {0, 0, 0, 0}
       };
 
-    c = getopt_long (argc, argv, "vlws:i:p:o:b:e:n:z:a:f:m:0",
+    c = getopt_long (argc, argv, "vlws:i:p:o:b:e:n:z:a:f:m:y:t:0",
                      long_options, &option_index);
 
     /* Detect the end of the options. */
@@ -101,7 +105,7 @@ int main(int argc, char *argv[]) {
         break;
 
       case 'v':
-	printf("r-stats-c-stremer 1.2.3\n");
+	printf("r-stats-c-stremer 1.3.0\n");
         return(0);
 
       case 's':
@@ -154,6 +158,14 @@ int main(int argc, char *argv[]) {
 
       case 'a':
         allelefreq = atoi(optarg) -1; 
+        break;
+
+      case 'y':
+        CaseAF = atoi(optarg) -1; 
+        break;
+
+      case 't':
+        ControlAF = atoi(optarg) -1; 
         break;
 
       case 'w':
@@ -262,9 +274,11 @@ int main(int argc, char *argv[]) {
   if (Ncontrols != 0) { argtot++;}
   if (zscore != 0) { argtot++;}
   if (allelefreq != 0) { argtot++;}
+  if (CaseAF != 0) { argtot++;}
+  if (ControlAF != 0) { argtot++;}
 
   // init argcolvals (pvalue always first element, oddsratio second, etc)
-  int argcolvals[7] = {0};
+  int argcolvals[13] = {0};
   if (pvalue != 0) { argcolvals[0] = pvalue;}
   if (oddsratio != 0) { argcolvals[1] = oddsratio;}
   if (beta != 0) { argcolvals[2] = beta;}
@@ -276,6 +290,8 @@ int main(int argc, char *argv[]) {
   if (ORl95 != 0) { argcolvals[8] = ORl95;}
   if (Ncases != 0) { argcolvals[9] = Ncases;}
   if (Ncontrols != 0) { argcolvals[10] = Ncontrols;}
+  if (CaseAF != 0) { argcolvals[11] = CaseAF;}
+  if (ControlAF != 0) { argcolvals[12] = ControlAF;}
   
   // Add one more that will be 0 or 1
   int valmodifier[2] = {0};

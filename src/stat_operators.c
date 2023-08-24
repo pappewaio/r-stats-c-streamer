@@ -60,6 +60,8 @@ void *populate_array(int (**p)(char**, int*, int*), char *operator_inname, int i
       p[inx] = log_operator_se_from_OR_u95_OR_l95;
     } else if (strcmp(operator_inname, "Neff_from_Nca_Nco") == 0) {
       p[inx] = log_operator_Neff_from_Nca_Nco;
+    } else if (strcmp(operator_inname, "AF_from_CaseAF_ControlAF") == 0) {
+      p[inx] = log_operator_AF_from_CaseAF_ControlAF;
     } else {
       fprintf(stderr, "[ERROR] Unknown function: %s\n", operator_inname);
     }
@@ -755,6 +757,40 @@ int log_operator_Neff_from_Nca_Nco(char **arrayvals, int arraypositions[], int v
 
 
   printf("%lf", 4/((1/ncases)+(1/ncontrols)));
+
+  return 0;
+}
+
+int log_operator_AF_from_CaseAF_ControlAF(char **arrayvals, int arraypositions[], int valmodifier[]) {
+   
+  if(strcmp(arrayvals[arraypositions[9]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[10]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[11]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  if(strcmp(arrayvals[arraypositions[12]], "NA")==0){
+    printf("%s", "NA"); 
+    return 0;
+  }
+  double ncases = strtod(arrayvals[arraypositions[9]], NULL);
+  double ncontrols = strtod(arrayvals[arraypositions[10]], NULL);
+  double caseaf = strtod(arrayvals[arraypositions[11]], NULL);
+  double controlaf = strtod(arrayvals[arraypositions[12]], NULL);
+
+  if (errno != 0) {
+    perror("[ERROR] Failed to parse floating point number");
+    errno = 0;
+    return 1;
+  }
+
+  printf("%lf", (caseaf*ncases+controlaf*ncontrols)/(ncases+ncontrols));
 
   return 0;
 }

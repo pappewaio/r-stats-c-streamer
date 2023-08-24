@@ -1,7 +1,7 @@
 # r-stats-c-streamer
 An efficient way of doing typical stat conversions or other math operations, using the internal C implementations from R without using R code to access them.
 
-version:1.2.3
+version:1.3.0
 
 ### The utilization of cmake and the rmath library (prerequisites)
 - (on Ubuntu): sudo apt install cmake
@@ -32,7 +32,7 @@ se_from_zscore_beta
 se_from_zscore_N_af
 N_from_zscore_beta_af"> functiontestfile.txt
 
-# Re-create the included testfile, which specifies functions to apply on each row (linear regression)
+# Re-create the included testfile, which specifies functions to apply on each row (logistic regression)
 echo -e "zscore_from_beta_se
 zscore_from_pval_oddsratio
 pval_from_zscore
@@ -85,6 +85,18 @@ cat test/testdata/linear_testStats_neglog10Pvalue.txt | ./build/r-stats-c-stream
 ```
 
 Right now the replace functionality can only replace one column at a time, but we have left room for a future upgrade where we could replace multiple columns each using a specific function defined in the functionfile.
+
+### infering EAF from case/control N and EAF
+
+```
+# Look at test data using head.
+cat test/testdata/logistic_testStats_caseAF_controlAF.txt | head | column -t
+
+echo -e "zscore_from_beta_se
+AF_from_CaseAF_ControlAF" > functiontestfile_logistic_cacoaf.txt
+cat test/testdata/logistic_testStats_caseAF_controlAF.txt | ./build/r-stats-c-streamer --functionfile functiontestfile_logistic_cacoaf.txt --skiplines 1 --index 1 --pvalue 9 --beta 3 --standarderror 4 --Nindividuals 10 --zscore 8 --Ncases 11 --Ncontrols 12 --CaseAF 14 --ControlAF 15 --statmodel log | head | column -t
+```
+
 
 ### Build singularity image
 First make sure singularity is installed. Then if you are satisfied with the tests above you can proceed and build the image, which will make it possible to directly run on for example a high-performance cluster without admin privileges.
