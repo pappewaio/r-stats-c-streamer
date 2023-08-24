@@ -47,5 +47,8 @@ int lin_operator_N_from_zscore_beta_af(char **arrayvals, int arraypositions[], i
 //Neff
 int log_operator_Neff_from_Nca_Nco(char **arrayvals, int arraypositions[], int valmodifier[]);
 
+//AF
+int log_operator_AF_from_CaseAF_ControlAF(char **arrayvals, int arraypositions[], int valmodifier[]);
+
 #endif
 
