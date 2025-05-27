@@ -113,6 +113,38 @@ echo -e "test_variant\t0.1\t0.05" | ./build/r-stats-c-streamer \
 # Expected output: test_variant    2.000000e+00
 ```
 
+## Development Workflow
+
+### Before Committing to Main Branch
+
+**Always run the complete test suite before committing to ensure code quality:**
+
+```bash
+# Run all tests (builds project automatically)
+./scripts/test.sh
+```
+
+This will:
+- Build the project from scratch
+- Execute all 7 unit tests
+- Report detailed results with pass/fail status
+- Ensure all functionality works correctly
+
+**Only commit if all tests pass (🎉 All tests passed!)**
+
+### Individual Testing
+
+For development and debugging, you can run specific tests:
+
+```bash
+# Test specific functionality
+./test/units/test_linear_basic.sh
+./test/units/test_precision_fix.sh
+
+# Test after making changes to column replacement
+./test/units/test_column_replacement.sh
+```
+
 ## Support
 
 - **Issues**: Report bugs and feature requests via GitHub issues
