@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.3] - 2025-05-27
+### Changed
+- **Adjusted p-value precision**: Reduced precision in p-value output from 15 to 5 digits in scientific notation (%.5e)
+- Updated printf format specifiers in p-value functions based on user feedback that 15 digits was overkill
+- Maintains statistical accuracy while providing more reasonable precision for typical use cases
+- Affects highly significant p-values converted from -log10 scale and z-score calculations
+
+### Functions Updated
+- `none_pval_from_neglog10p`
+- `lin_operator_pval_from_zscore_N` 
+- `lin_operator_pval_from_zscore`
+- `log_operator_pval_from_zscore`
+
 ## [1.4.2] - 2025-05-27
 ### Added
 - **Comprehensive unit test framework** with 7 individual test scripts in `test/units/`

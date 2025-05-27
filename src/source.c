@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
         break;
 
       case 'v':
-	printf("r-stats-c-streamer 1.4.2\n");
+	printf("r-stats-c-streamer 1.4.3\n");
         return(0);
 
       case 's':

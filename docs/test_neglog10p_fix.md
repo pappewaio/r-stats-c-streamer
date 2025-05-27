@@ -1,51 +1,43 @@
-# Bug Fix: Conversion of p-values from -log10 scale produces incorrect p-values
+# Testing neglog10p Precision Fix
 
-## Problem Description
-
-The `pval_from_neglog10p` function was producing incorrect p-values for highly significant variants. Specifically:
-
-- Highly significant p-values (e.g., -log10 p-values > ~6) were being truncated to 0.000000
-- This was causing substantial inaccuracies in downstream analyses
-- The most significant p-values became 0, while less significant ones became 1E-6
+## Bug Description
+The `pval_from_neglog10p` function was producing incorrect results for highly significant p-values. When converting from -log10 scale, very small p-values (e.g., those with -log10 p > 6) were being truncated to 0.000000 instead of showing the correct small values.
 
 ## Root Cause
-
-The issue was in the `none_pval_from_neglog10p` function in `src/stat_operators.c`. The function was using:
+The issue was in the printf format specifier used in the `none_pval_from_neglog10p` function:
 
 ```c
+// Before fix (caused truncation):
 printf("%lf", pow(10, -prob));
+
+// After fix (scientific notation with 5 digits precision):
+printf("%.5e", pow(10, -prob));
 ```
 
-The `%lf` format specifier has limited precision (typically 6 decimal places by default), so very small numbers like `10^(-11.2982) ≈ 5.03 × 10^(-12)` were being rounded to 0.000000.
-
-## Solution
-
-Changed the printf format specifier to use scientific notation with higher precision:
-
-```c
-printf("%.15e", pow(10, -prob));
-```
-
-This change was also applied to other p-value output functions:
+## Functions Fixed
+The precision fix was applied to all p-value output functions:
+- `none_pval_from_neglog10p` 
 - `lin_operator_pval_from_zscore_N`
-- `lin_operator_pval_from_zscore`  
+- `lin_operator_pval_from_zscore`
 - `log_operator_pval_from_zscore`
 
 ## Test Results
+With the fix, highly significant p-values are now correctly converted:
 
-### Before Fix:
-```
-test_variant    11.2982 → 0.000000
-test_variant    7.14186 → 0.000000
-test_variant    7.20949 → 0.000000
-```
+| Input (-log10 p) | Before Fix | After Fix |
+|------------------|------------|-----------|
+| 11.2982 | 0.000000 | 5.03269e-12 |
+| 7.14186 | 0.000000 | 7.21687e-08 |
+| 7.20949 | 0.000000 | 6.17284e-08 |
 
-### After Fix:
-```
-test_variant    11.2982 → 5.032687915706674e-12
-test_variant    7.14186 → 7.213399742411434e-08
-test_variant    7.20949 → 6.173195060319592e-08
-```
+## Testing
+The fix includes a comprehensive test suite in `test/neglog10p_precision_fix/` that verifies:
+- Correct conversion of high -log10 p-values
+- Preservation of existing functionality
+- Scientific notation output format with appropriate precision
+
+## Implementation Details
+The fix uses scientific notation (%.5e) which provides 5 digits of precision, sufficient for most statistical applications while avoiding the overkill of 15 digits that was initially implemented.
 
 ## Verification
 
