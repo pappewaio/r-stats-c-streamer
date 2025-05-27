@@ -15,14 +15,14 @@ VERSION_RESULT=$(./build/r-stats-c-streamer --version 2>&1)
 VERSION_EXIT_CODE=$?
 
 if [ $VERSION_EXIT_CODE -eq 0 ]; then
-    if echo "$VERSION_RESULT" | grep -q "r-stats-c-streamer 1\.4\.1"; then
+    if echo "$VERSION_RESULT" | grep -q "r-stats-c-streamer 1\.4\.2"; then
         echo "✅ PASS: $TEST_NAME"
         echo "   - Version command works correctly"
         echo "   - Version: $VERSION_RESULT"
         exit 0
     else
         echo "❌ FAIL: $TEST_NAME"
-        echo "Expected version 1.4.1, got: $VERSION_RESULT"
+        echo "Expected version 1.4.2, got: $VERSION_RESULT"
         exit 1
     fi
 else

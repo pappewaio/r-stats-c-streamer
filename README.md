@@ -2,7 +2,7 @@
 
 An efficient way of doing typical statistical conversions and mathematical operations, using the internal C implementations from R without using R code to access them.
 
-**Version:** 1.4.1
+**Version:** 1.4.2
 
 ## Overview
 

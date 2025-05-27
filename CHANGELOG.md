@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.2] - 2025-05-27
+### Added
+- **Comprehensive unit test framework** with 7 individual test scripts in `test/units/`
+- **Modern test runner** (`scripts/test.sh`) with colored output and detailed reporting
+- **Development workflow section** in README emphasizing mandatory testing before commits
+- **Unit test documentation** in `test/units/README.md` with guidelines for adding new tests
+- **Automated testing integration** in documentation with clear instructions
+
+### Changed
+- **Replaced legacy test script** with robust unit test framework
+- **Enhanced testing documentation** with automated testing section
+- **Improved developer guidance** with clear workflow for code quality assurance
+
+### Tests Added
+- `test_version_check.sh` - Version command validation
+- `test_linear_basic.sh` - Linear regression functions
+- `test_logistic_basic.sh` - Logistic regression functions
+- `test_neglog10p_handling.sh` - -log10 p-value flag functionality
+- `test_column_replacement.sh` - Column replacement feature
+- `test_case_control_af.sh` - Case/control allele frequency calculation
+- `test_precision_fix.sh` - High-precision p-value conversion
+
 ## [1.4.1] - 2025-05-27
 ### Changed
 - **Major documentation restructuring**: Streamlined README.md to focus on essentials and quick start
