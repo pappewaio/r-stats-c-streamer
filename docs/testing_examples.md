@@ -160,11 +160,45 @@ cat test/testdata/logistic_testStats_caseAF_controlAF.txt | ./build/r-stats-c-st
     --statmodel log | head | column -t
 ```
 
+## Automated Testing
+
+### Complete Test Suite
+
+Run the comprehensive unit test framework:
+
+```bash
+# Run all tests from project root
+./scripts/test.sh
+```
+
+This will automatically:
+- Build the project
+- Run all unit tests
+- Report detailed results with pass/fail status
+- Provide a summary of test outcomes
+
+### Individual Unit Tests
+
+You can also run specific tests:
+
+```bash
+# Test basic linear regression functionality
+./test/units/test_linear_basic.sh
+
+# Test precision fixes
+./test/units/test_precision_fix.sh
+
+# Test column replacement
+./test/units/test_column_replacement.sh
+```
+
+See `test/units/README.md` for complete documentation of the unit test framework.
+
 ## Precision Testing
 
 ### High-Precision P-value Conversion
 
-Test the precision fix for highly significant p-values:
+The precision fix is automatically tested as part of the unit test suite, but you can also run it manually:
 
 ```bash
 # Run the comprehensive precision test

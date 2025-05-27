@@ -116,7 +116,7 @@ echo -e "test_variant\t0.1\t0.05" | ./build/r-stats-c-streamer \
 ## Support
 
 - **Issues**: Report bugs and feature requests via GitHub issues
-- **Testing**: Run `cd test/neglog10p_precision_fix && ./run_test.sh` to verify precision fixes
+- **Testing**: Run `./scripts/test.sh` to execute the complete test suite
 - **Version**: Check your version with `./build/r-stats-c-streamer --version`
 
 ## License
