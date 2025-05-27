@@ -1,130 +1,128 @@
 # r-stats-c-streamer
-An efficient way of doing typical stat conversions or other math operations, using the internal C implementations from R without using R code to access them.
 
-version:1.4.0
+An efficient way of doing typical statistical conversions and mathematical operations, using the internal C implementations from R without using R code to access them.
 
-### The utilization of cmake and the rmath library (prerequisites)
-- (on Ubuntu): sudo apt install cmake
-- https://github.com/statslabs/rmath
+**Version:** 1.4.1
 
-### Build project and test on test data
-Do this in same folder as CMakeLists.txt & source.c
+## Overview
 
+r-stats-c-streamer is a command-line tool that performs statistical transformations on tabular data using R's internal C functions. It's designed for high-performance processing of GWAS summary statistics and other genomic data.
+
+### Key Features
+
+- **High Performance**: Uses R's internal C implementations without R overhead
+- **Stream Processing**: Unix-style pipeline processing for large datasets
+- **Statistical Models**: Support for linear and logistic regression statistics
+- **Precision**: High-precision p-value calculations (scientific notation)
+- **Flexible**: Column replacement and transformation capabilities
+- **Container Ready**: Singularity container support for HPC environments
+
+## Quick Start
+
+### Prerequisites
+
+```bash
+# Ubuntu/Debian
+sudo apt install cmake
+
+# Install rmath library
+git clone https://github.com/statslabs/rmath.git
+cd rmath && mkdir build && cd build
+cmake .. && make && sudo make install
 ```
-# Build project (it will remove old build folders)
+
+### Installation
+
+```bash
+# Clone and build
+git clone <repository-url>
+cd r-stats-c-streamer
 ./build.sh
 
-# Check the current version
+# Verify installation
 ./build/r-stats-c-streamer --version
-
-# Look at test data using head.
-cat test/testdata/linear_testStats.txt | head | column -t
-
-# Re-create the included testfile, which specifies functions to apply on each row (linear regression)
-echo -e "zscore_from_pval_beta
-zscore_from_pval_beta_N
-zscore_from_beta_se
-pval_from_zscore_N
-pval_from_zscore
-beta_from_zscore_se
-beta_from_zscore_N_af
-se_from_zscore_beta
-se_from_zscore_N_af
-N_from_zscore_beta_af"> functiontestfile.txt
-
-# Re-create the included testfile, which specifies functions to apply on each row (logistic regression)
-echo -e "zscore_from_beta_se
-zscore_from_pval_oddsratio
-pval_from_zscore
-beta_from_oddsratio
-beta_from_zscore_se
-se_from_beta_zscore
-se_from_ORu95_ORl95
-Neff_from_Nca_Nco" > functiontestfile_logistic.txt
-
-# Try program - linear model
-cat test/testdata/linear_testStats.txt | ./build/r-stats-c-streamer --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin | head | column -t
-###0             zscore_from_pval_beta  zscore_from_pval_beta_N  zscore_from_beta_se	etc..
-###rs4819391_G   1.832718               1.834151                 1.834151	etc..
-###rs11089128_G  -0.808975              -0.809215                -0.809215	etc..
-###rs7288972_C   -1.075487              -1.075903                -1.075903	etc..
-###rs2032141_A   2.068237               2.070195                 2.070195	etc..
-###etc...
-
-# Try program - logistic model
-cat test/testdata/logistic_testStats.txt | ./build/r-stats-c-streamer --functionfile functiontestfile_logistic.txt --skiplines 1 --index 1 --pvalue 9 --beta 3 --standarderror 4 --Nindividuals 10 --Ncases 11 --Ncontrols 12 --zscore 8 --allelefreq 13 --oddsratio 5 --ORu95 6 --ORl95 7 --statmodel log
-
-
-# If the P-value uses -log10, apply the neglog10 flag
-cat test/testdata/linear_testStats_neglog10Pvalue.txt | ./build/r-stats-c-streamer --functionfile functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin --neglog10p | head | column -t
-###0             zscore_from_pval_beta  zscore_from_pval_beta_N  zscore_from_beta_se	etc..
-###rs4819391_G   1.832718               1.834151                 1.834151             
-###rs11089128_G  -0.808975              -0.809215                -0.809215            
-###rs7288972_C   -1.075487              -1.075903                -1.075903            
-###rs2032141_A   2.068237               2.070195                 2.070195             
-###etc...
-
 ```
 
-As you can see the column names describes the operation performed, and using the `--neglog10` flag we get the same result as if we would have a "normal" P-value. There are some decimals that are off in this example, but that is because the test set with -log(Pvalue) is slightly truncated. In a future version the test set will contain a not truncated value.
+### Basic Usage
 
-Another important feature with this software is that it can parse a file and return the exact same columns, and replace certain columns using one of the available functions. This could be a way of managing -log10 pvalues without using the '--neglog10' flag, as we could pre-process the data and replace all -log10 pvalues with normal pvalues. See below for an example of how to do that:
+```bash
+# Create a function file
+echo -e "zscore_from_beta_se\npval_from_zscore" > functions.txt
 
-```
-# Re-create the included testfile, which specifies functions to apply on each row
-echo -e "pval_from_neglog10p" > functiontestfile2.txt
-
-# If the P-value uses -log10, pre-process and convert to normal pvalue
-cat test/testdata/linear_testStats_neglog10Pvalue.txt | ./build/r-stats-c-streamer --functionfile functiontestfile2.txt --skiplines 1 --index 1 --pvalue 5 --statmodel none --replace 5 | head | column -t
-###RSID          B                    SE                  Z                   neglog10P  etc..
-###rs4819391_G   0.233253438056324    0.127172429896691   1.83415098890387    1.17493
-###rs11089128_G  -0.057230689617411   0.0707237246183849  -0.809214869921227  0.378274
-###rs7288972_C   -0.0603896529952508  0.0561292812495112  -1.07590283807129   0.54951
-###etc...   2.04506156636745     0.987859595989405   2.07019456476422    1.41321
-
+# Process your data
+cat your_data.txt | ./build/r-stats-c-streamer \
+    --functionfile functions.txt \
+    --skiplines 1 \
+    --index 1 \
+    --beta 2 \
+    --standarderror 3 \
+    --statmodel lin
 ```
 
-Right now the replace functionality can only replace one column at a time, but we have left room for a future upgrade where we could replace multiple columns each using a specific function defined in the functionfile.
+## Core Functionality
 
-### infering EAF from case/control N and EAF
+### Statistical Models
+- **Linear regression** (`--statmodel lin`): GWAS summary statistics
+- **Logistic regression** (`--statmodel log`): Case-control studies  
+- **None** (`--statmodel none`): Utility functions only
 
-```
-# Look at test data using head.
-cat test/testdata/logistic_testStats_caseAF_controlAF.txt | head | column -t
+### Common Functions
+- `zscore_from_beta_se`: Calculate z-score from beta and standard error
+- `pval_from_zscore`: Calculate p-value from z-score
+- `pval_from_neglog10p`: Convert -log10 p-values to normal p-values
+- `AF_from_CaseAF_ControlAF`: Calculate overall allele frequency from case/control AFs
 
-echo -e "zscore_from_beta_se
-AF_from_CaseAF_ControlAF" > functiontestfile_logistic_cacoaf.txt
-cat test/testdata/logistic_testStats_caseAF_controlAF.txt | ./build/r-stats-c-streamer --functionfile functiontestfile_logistic_cacoaf.txt --skiplines 1 --index 1 --pvalue 9 --beta 3 --standarderror 4 --Nindividuals 10 --zscore 8 --Ncases 11 --Ncontrols 12 --CaseAF 14 --ControlAF 15 --statmodel log | head | column -t
-```
+### Special Features
 
-
-### Build singularity image
-First make sure singularity is installed. Then if you are satisfied with the tests above you can proceed and build the image, which will make it possible to directly run on for example a high-performance cluster without admin privileges.
-
-```
-# Make singularity image based on defintion file
-mkdir -p images
-fname="$(date +%F)"-ubuntu-2004_r-stats-c-streamer.simg
-sudo singularity build images/${fname} ubuntu-20.04_r-stats-c-streamer.def
-
-# Check that image is executable and then test it (change date)
-cat test/testdata/linear_testStats.txt | singularity run --bind .:/mnt images/2020-12-14-ubuntu-2004_r-stats-c-streamer.simg r-stats-c-streamer --functionfile  /mnt/functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin | head | column -t
-
+#### High-Precision P-values
+Version 1.4.0+ includes fixes for highly significant p-values that were previously truncated:
+```bash
+# Handles very small p-values correctly (e.g., 1e-12 instead of 0.000000)
+cat data.txt | ./build/r-stats-c-streamer --functionfile functions.txt --neglog10p
 ```
 
-### Testing precision fixes
-
-A comprehensive test for the neglog10p precision fix is available:
-
+#### Column Replacement
+Replace specific columns with calculated values:
+```bash
+# Replace column 5 with converted p-values
+cat data.txt | ./build/r-stats-c-streamer \
+    --functionfile functions.txt \
+    --replace 5 \
+    --statmodel none
 ```
-# Test the neglog10p precision fix
-cd test/neglog10p_precision_fix
-./run_test.sh
+
+## Documentation
+
+- **[Complete Testing Guide](docs/testing_examples.md)**: Comprehensive examples and usage patterns
+- **[Developer Documentation](docs/developers.md)**: Development and testing specifics
+- **[Precision Fix Details](docs/test_neglog10p_fix.md)**: Information about the p-value precision bug fix
+- **[Changelog](CHANGELOG.md)**: Version history and changes
+
+## Quick Test
+
+```bash
+# Run a simple test to verify everything works
+echo -e "zscore_from_beta_se" > test_functions.txt
+echo -e "test_variant\t0.1\t0.05" | ./build/r-stats-c-streamer \
+    --functionfile test_functions.txt \
+    --skiplines 0 \
+    --index 1 \
+    --beta 2 \
+    --standarderror 3 \
+    --statmodel lin
+# Expected output: test_variant    2.000000e+00
 ```
 
-This test verifies that highly significant p-values (e.g., -log10 p > 6) are converted correctly instead of being truncated to 0.000000. See `docs/test_neglog10p_fix.md` for detailed information about this bug fix.
+## Support
 
-### Extra
-- See [developer specifics](docs/developers.md) for testing and other non user specific stuff
+- **Issues**: Report bugs and feature requests via GitHub issues
+- **Testing**: Run `cd test/neglog10p_precision_fix && ./run_test.sh` to verify precision fixes
+- **Version**: Check your version with `./build/r-stats-c-streamer --version`
 
+## License
 
+[Add your license information here]
+
+---
+
+For detailed examples, advanced usage, and comprehensive testing instructions, see the [Testing Examples Guide](docs/testing_examples.md).
