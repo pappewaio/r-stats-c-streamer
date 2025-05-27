@@ -14,9 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive test suite for neglog10p precision fix in `test/neglog10p_precision_fix/`
 - Documentation of the bug fix in `docs/test_neglog10p_fix.md`
 
-## [1.3.0] - 2024-XX-XX
+## [1.3.0] - 2023-08-24
 ### Added
-- (Note: This version's changes need to be documented)
+- New functionality to infer Effect Allele Frequency (EAF) from case/control allele frequencies
+- Added `AF_from_CaseAF_ControlAF` function for logistic regression statistics
+- Added `--CaseAF` and `--ControlAF` command line options (flags -y and -t)
+- Added test data for case/control allele frequency functionality (`logistic_testStats_caseAF_controlAF.txt`)
+- Added example usage in README for inferring EAF from case/control N and EAF
 
 ## [1.2.3] - 2022-08-10
 ### added
