@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.5)
 project(r-stats-c-streamer)
 include_directories("./src")
 file(GLOB Sources "src/*.c")

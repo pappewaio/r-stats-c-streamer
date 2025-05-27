@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2024-12-30
+### Fixed
+- Fixed precision issue in p-value conversion from -log10 scale where highly significant p-values (e.g., -log10 p > 6) were being truncated to 0.000000
+- Updated printf format specifiers in p-value output functions to use scientific notation with higher precision (%.15e)
+- Fixed `pval_from_neglog10p`, `pval_from_zscore`, `pval_from_zscore_N`, and logistic `pval_from_zscore` functions
+
+### Added
+- Comprehensive test suite for neglog10p precision fix in `test/neglog10p_precision_fix/`
+- Documentation of the bug fix in `docs/test_neglog10p_fix.md`
+
+## [1.3.0] - 2024-XX-XX
+### Added
+- (Note: This version's changes need to be documented)
+
 ## [1.2.3] - 2022-08-10
 ### added
 - new log10 backtransformation function

@@ -1,7 +1,7 @@
 # r-stats-c-streamer
 An efficient way of doing typical stat conversions or other math operations, using the internal C implementations from R without using R code to access them.
 
-version:1.3.0
+version:1.4.0
 
 ### The utilization of cmake and the rmath library (prerequisites)
 - (on Ubuntu): sudo apt install cmake
@@ -111,6 +111,18 @@ sudo singularity build images/${fname} ubuntu-20.04_r-stats-c-streamer.def
 cat test/testdata/linear_testStats.txt | singularity run --bind .:/mnt images/2020-12-14-ubuntu-2004_r-stats-c-streamer.simg r-stats-c-streamer --functionfile  /mnt/functiontestfile.txt --skiplines 1 --index 1 --pvalue 5 --beta 2 --standarderror 3 --Nindividuals 6 --zscore 4 --allelefreq 7 --statmodel lin | head | column -t
 
 ```
+
+### Testing precision fixes
+
+A comprehensive test for the neglog10p precision fix is available:
+
+```
+# Test the neglog10p precision fix
+cd test/neglog10p_precision_fix
+./run_test.sh
+```
+
+This test verifies that highly significant p-values (e.g., -log10 p > 6) are converted correctly instead of being truncated to 0.000000. See `docs/test_neglog10p_fix.md` for detailed information about this bug fix.
 
 ### Extra
 - See [developer specifics](docs/developers.md) for testing and other non user specific stuff

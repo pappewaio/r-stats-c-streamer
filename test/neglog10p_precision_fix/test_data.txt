@@ -1,0 +1,7 @@
+variant_id	neglog10p
+rs_high_sig_1	11.2982
+rs_high_sig_2	7.14186
+rs_high_sig_3	7.20949
+rs_medium_sig	5.0
+rs_low_sig	2.0
+rs_normal	1.0 

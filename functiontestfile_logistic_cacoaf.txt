@@ -1,2 +1,0 @@
-zscore_from_beta_se
-AF_from_CaseAF_ControlAF

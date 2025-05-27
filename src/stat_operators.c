@@ -127,7 +127,7 @@ int none_pval_from_neglog10p(char **arrayvals, int arraypositions[], int valmodi
     return 1;
   }
 
-  printf("%lf", pow(10, -prob));
+  printf("%.15e", pow(10, -prob));
 
   return 0;
 }
@@ -297,7 +297,7 @@ int lin_operator_pval_from_zscore_N(char **arrayvals, int arraypositions[], int 
     return 1;
   }
 
-  printf("%lf", 2*pt(-1*fabs(zscore), Nindividuals-2, 1, 0));
+  printf("%.15e", 2*pt(-1*fabs(zscore), Nindividuals-2, 1, 0));
   
   return 0;
 }
@@ -323,7 +323,7 @@ int lin_operator_pval_from_zscore(char **arrayvals, int arraypositions[], int va
     return 1;
   }
 
-  printf("%lf", 2*pnorm( -fabs( zscore ), 0, 1, 1, 0 ));
+  printf("%.15e", 2*pnorm( -fabs( zscore ), 0, 1, 1, 0 ));
 
   return 0;
 }
@@ -610,7 +610,7 @@ int log_operator_pval_from_zscore(char **arrayvals, int arraypositions[], int va
     return 1;
   }
 
-  printf("%lf", 2*pnorm( -fabs( zscore ), 0, 1, 1, 0 ));
+  printf("%.15e", 2*pnorm( -fabs( zscore ), 0, 1, 1, 0 ));
 
   return 0;
 }
